@@ -6,6 +6,8 @@ import { prisma } from '@/lib/prisma';
 const POINTS_PER_CLICK = 10;
 const MILESTONE_INTERVAL = 100; // Trigger ad every 100 clicks
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
