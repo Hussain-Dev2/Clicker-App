@@ -50,6 +50,7 @@ model User {
   dailyStats        DailyStats[]
   achievements      UserAchievement[]
   tasks             Task[]
+  notifications     Notification[]
 }
 
 model Account {
@@ -88,13 +89,21 @@ model VerificationToken {
 }
 
 model Order {
-  id        String   @id @default(cuid())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
-  product   Product  @relation(fields: [productId], references: [id])
-  productId String
-  cost      Int
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String
+  product      Product  @relation(fields: [productId], references: [id])
+  productId    String
+  cost         Int
+  redeemCode   String?  // The actual code for digital products
+  isRevealed   Boolean  @default(false) // Has user scratched to reveal
+  isUsed       Boolean  @default(false) // Has user marked as used
+  status       String   @default("pending") // "pending", "delivered", "cancelled"
+  deliveredAt  DateTime? // When code was delivered
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@index([status])
 }
 
 
@@ -104,9 +113,15 @@ model Product {
   description String?
   costPoints  Int
   stock       Int?     // null => unlimited
+  imageUrl    String?  // Product image URL
+  category    String?  // "Google Play", "iTunes", "Steam", "Game Codes", etc
+  value       String?  // "$10", "$25", "100 Coins", etc
+  region      String?  // "USA", "EU", "UK", "Global", etc
+  isDigital   Boolean  @default(true)
   createdAt   DateTime @default(now())
 
   orders      Order[]
+  codes       RedemptionCode[]
 }
 
 // Smart Points System Models
@@ -181,3 +196,32 @@ model Task {
   @@index([userId])
 }
 
+// Redemption Code Pool - Admin adds real codes here
+model RedemptionCode {
+  id          String   @id @default(cuid())
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId   String
+  code        String   @unique // The actual gift/redemption code
+  isUsed      Boolean  @default(false)
+  orderId     String?  // Which order claimed this code
+  usedAt      DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([productId, isUsed])
+}
+
+// User Notifications (In-App Inbox)
+model Notification {
+  id          String   @id @default(cuid())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  type        String   // "order_delivered", "order_pending", "system"
+  title       String
+  message     String   @db.Text
+  orderId     String?  // Link to order if applicable
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+}

@@ -9,6 +9,11 @@ interface Product {
   description: string;
   costPoints: number;
   stock: number | null;
+  imageUrl: string | null;
+  category: string | null;
+  value: string | null;
+  region: string | null;
+  isDigital: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -23,6 +28,11 @@ export default function AdminProductManager() {
     description: '',
     costPoints: 100,
     stock: null as number | null,
+    imageUrl: '',
+    category: '',
+    value: '',
+    region: '',
+    isDigital: true,
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -48,6 +58,11 @@ export default function AdminProductManager() {
       description: product.description,
       costPoints: product.costPoints,
       stock: product.stock,
+      imageUrl: product.imageUrl || '',
+      category: product.category || '',
+      value: product.value || '',
+      region: product.region || '',
+      isDigital: product.isDigital,
     });
     setShowForm(true);
   };
@@ -60,6 +75,11 @@ export default function AdminProductManager() {
       description: '',
       costPoints: 100,
       stock: null,
+      imageUrl: '',
+      category: '',
+      value: '',
+      region: '',
+      isDigital: true,
     });
   };
 
@@ -73,6 +93,11 @@ export default function AdminProductManager() {
         description: formData.description,
         costPoints: formData.costPoints,
         stock: formData.stock,
+        imageUrl: formData.imageUrl || null,
+        category: formData.category || null,
+        value: formData.value || null,
+        region: formData.region || null,
+        isDigital: formData.isDigital,
       });
 
       if (editingId) {
@@ -178,6 +203,109 @@ export default function AdminProductManager() {
               />
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Category *
+                </label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  required
+                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">-- Select Category --</option>
+                  <option value="Google Play">🎮 Google Play</option>
+                  <option value="iTunes">🍎 iTunes / Apple</option>
+                  <option value="Steam">🎮 Steam</option>
+                  <option value="PlayStation">🎮 PlayStation</option>
+                  <option value="Xbox">🎮 Xbox</option>
+                  <option value="Nintendo">🎮 Nintendo</option>
+                  <option value="Mobile Legends">🎮 Mobile Legends</option>
+                  <option value="Free Fire">🎮 Free Fire</option>
+                  <option value="PUBG">🎮 PUBG</option>
+                  <option value="Roblox">🎮 Roblox</option>
+                  <option value="Spotify">🎵 Spotify</option>
+                  <option value="Netflix">🎬 Netflix</option>
+                  <option value="Amazon">🛒 Amazon</option>
+                  <option value="Visa">💳 Visa Gift Card</option>
+                  <option value="Mastercard">💳 Mastercard Gift Card</option>
+                  <option value="PayPal">💰 PayPal</option>
+                  <option value="Other">🎁 Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Value (e.g., $10, $25)
+                </label>
+                <select
+                  value={formData.value}
+                  onChange={(e) => setFormData({ ...formData, value: e.target.value })}
+                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">-- Select Value --</option>
+                  <option value="$5">💵 $5</option>
+                  <option value="$10">💵 $10</option>
+                  <option value="$15">💵 $15</option>
+                  <option value="$20">💵 $20</option>
+                  <option value="$25">💵 $25</option>
+                  <option value="$50">💵 $50</option>
+                  <option value="$75">💵 $75</option>
+                  <option value="$100">💵 $100</option>
+                  <option value="50 Coins">🪙 50 Coins</option>
+                  <option value="100 Coins">🪙 100 Coins</option>
+                  <option value="200 Coins">🪙 200 Coins</option>
+                  <option value="500 Coins">🪙 500 Coins</option>
+                  <option value="1000 Coins">🪙 1000 Coins</option>
+                  <option value="1 Month">📅 1 Month</option>
+                  <option value="3 Months">📅 3 Months</option>
+                  <option value="6 Months">📅 6 Months</option>
+                  <option value="12 Months">📅 12 Months / 1 Year</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Region *
+                </label>
+                <select
+                  value={formData.region}
+                  onChange={(e) => setFormData({ ...formData, region: e.target.value })}
+                  required
+                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">-- Select Region --</option>
+                  <option value="Global">🌍 Global (Worldwide)</option>
+                  <option value="USA">🇺🇸 USA</option>
+                  <option value="EU">🇪🇺 Europe (EU)</option>
+                  <option value="UK">🇬🇧 United Kingdom</option>
+                  <option value="Canada">🇨🇦 Canada</option>
+                  <option value="Australia">🇦🇺 Australia</option>
+                  <option value="Middle East">🇸🇦 Middle East</option>
+                  <option value="Asia">🌏 Asia</option>
+                  <option value="Latin America">🌎 Latin America</option>
+                  <option value="Africa">🌍 Africa</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                Image URL
+              </label>
+              <input
+                type="url"
+                value={formData.imageUrl}
+                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                placeholder="https://example.com/image.jpg"
+                className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <p className="text-xs text-slate-400 mt-1">
+                💡 Tip: Use image hosting services like Imgur or Cloudinary
+              </p>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
                 Stock (Leave empty for unlimited)
@@ -246,13 +374,28 @@ export default function AdminProductManager() {
               >
                 <div className="flex justify-between items-start gap-4">
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-white">{product.title}</h3>
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-lg font-semibold text-white">{product.title}</h3>
+                      {product.category && (
+                        <span className="px-2 py-1 bg-purple-600/50 rounded-full text-xs text-white">
+                          {product.category}
+                        </span>
+                      )}
+                      {product.value && (
+                        <span className="px-2 py-1 bg-yellow-600/50 rounded-full text-xs text-white">
+                          {product.value}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm text-slate-400">{product.description}</p>
                     <div className="flex gap-4 text-sm text-slate-400 mt-2">
                       <span>💰 {product.costPoints} points</span>
-                      {product.stock !== null && (
+                      {product.stock !== null ? (
                         <span>📦 Stock: {product.stock}</span>
+                      ) : (
+                        <span>📦 Unlimited</span>
                       )}
+                      {product.imageUrl && <span>🖼️ Has Image</span>}
                       <span>🕐 {new Date(product.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>

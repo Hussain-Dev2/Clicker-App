@@ -6,7 +6,13 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const products = await prisma.product.findMany({
-      where: { stock: { gt: 0 } },
+      where: {
+        OR: [
+          { stock: { gt: 0 } },  // Products with stock > 0
+          { stock: null }         // Products with unlimited stock
+        ]
+      },
+      orderBy: { createdAt: 'desc' }
     });
 
     return NextResponse.json({ products });

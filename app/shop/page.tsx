@@ -2,17 +2,36 @@
 
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import StoreItem from '@/components/StoreItem';
+import DigitalProductCard from '@/components/DigitalProductCard';
+import ScratchCardModal from '@/components/ScratchCardModal';
 import Toast from '@/components/Toast';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { apiFetch } from '@/lib/client';
+import Link from 'next/link';
 
 interface Product {
   id: string;
   title: string;
-  description: string;
+  description: string | null;
   costPoints: number;
-  stock: number;
+  stock: number | null;
+  imageUrl: string | null;
+  category: string | null;
+  value: string | null;
+  region: string | null;
+}
+
+interface PurchaseResponse {
+  message: string;
+  redeemCode: string | null;
+  newPoints: number;
+  orderId: string;
+  status: string;
+  isPending: boolean;
+  product: {
+    title: string;
+    value?: string;
+  };
 }
 
 export default function Shop() {
@@ -21,6 +40,8 @@ export default function Shop() {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [userPoints, setUserPoints] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [purchaseResult, setPurchaseResult] = useState<PurchaseResponse | null>(null);
 
   useEffect(() => {
     if (status === 'authenticated') {
@@ -53,11 +74,42 @@ export default function Shop() {
     }
   };
 
-  const handleBuy = (message: string, newPoints: number) => {
-    setUserPoints(newPoints);
-    setToast({ message, type: 'success' });
-    fetchProducts(); // Refresh stock
+  const handlePurchase = async (productId: string) => {
+    try {
+      const response = await fetch('/api/store/buy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setToast({ message: data.error || 'Purchase failed', type: 'error' });
+        return;
+      }
+
+      // Show scratch card modal OR pending notification
+      if (data.isPending) {
+        setToast({ 
+          message: `⏳ ${data.product.title} will be delivered in less than 2 days. Check your Inbox!`, 
+          type: 'success' 
+        });
+      } else {
+        setPurchaseResult(data);
+      }
+      
+      setUserPoints(data.newPoints);
+      fetchProducts(); // Refresh stock
+    } catch (error) {
+      setToast({ message: 'Purchase failed', type: 'error' });
+    }
   };
+
+  const categories = ['All', ...new Set(products.map(p => p.category).filter(Boolean))] as string[];
+  const filteredProducts = selectedCategory === 'All' 
+    ? products 
+    : products.filter(p => p.category === selectedCategory);
 
   if (loading) {
     return (
@@ -72,66 +124,105 @@ export default function Shop() {
 
   return (
     <ProtectedRoute>
-      <main className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900 relative overflow-hidden">
+      <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-15 dark:opacity-20 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-15 dark:opacity-20 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-1/2 -left-20 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-15 dark:opacity-20 animate-blob animation-delay-4000"></div>
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-1/2 -left-20 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 py-12 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 relative z-10">
           {/* Header */}
-          <div className="mb-16 animate-fade-in">
-            <div className="flex items-center gap-4 mb-6">
-              <span className="text-7xl drop-shadow-lg">🏪</span>
-              <h1 className="text-6xl font-extrabold bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent animate-gradient drop-shadow-md">
-                Shop
-              </h1>
+          <div className="mb-8 sm:mb-10 lg:mb-12 animate-fade-in">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <span className="text-5xl sm:text-6xl lg:text-7xl drop-shadow-lg">🏪</span>
+                <div>
+                  <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white drop-shadow-md">
+                    Digital Store
+                  </h1>
+                  <p className="text-slate-300 text-sm sm:text-base lg:text-lg xl:text-xl mt-1 sm:mt-2">Redeem your points for gift cards & game codes</p>
+                </div>
+              </div>
+
+              {/* Purchase History Link */}
+              <Link
+                href="/purchases"
+                className="px-4 sm:px-6 py-2 sm:py-3 bg-slate-800/50 backdrop-blur-xl border border-slate-700 hover:border-purple-500 rounded-xl text-white text-sm sm:text-base font-semibold transition-all hover:shadow-lg hover:shadow-purple-500/20 w-full sm:w-auto text-center"
+              >
+                📜 My Purchases
+              </Link>
             </div>
-            <p className="text-slate-700 dark:text-slate-300 text-xl mb-8 font-semibold">Spend your points on exclusive rewards</p>
 
             {/* Points Card */}
-            <div className="inline-block backdrop-blur-xl bg-gradient-to-br from-yellow-100/80 to-amber-100/70 dark:from-yellow-900/40 dark:to-amber-800/30 border-2 border-yellow-300/70 dark:border-yellow-400/50 rounded-3xl px-10 py-6 shadow-xl hover:shadow-2xl hover:shadow-yellow-500/30 transition-all duration-300 card-hover">
-              <p className="text-slate-700 dark:text-slate-300 text-sm mb-2 font-bold flex items-center gap-2">
-                <span className="text-xl">💰</span>
+            <div className="w-full sm:inline-block backdrop-blur-xl bg-gradient-to-br from-yellow-600/30 to-amber-600/20 border-2 border-yellow-400/50 rounded-2xl sm:rounded-3xl px-6 sm:px-8 lg:px-10 py-4 sm:py-5 lg:py-6 shadow-xl">
+              <p className="text-slate-300 text-xs sm:text-sm mb-1 sm:mb-2 font-bold flex items-center gap-2">
+                <span className="text-lg sm:text-xl">💰</span>
                 Available Points
               </p>
-              <p className="text-5xl font-extrabold bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 bg-clip-text text-transparent drop-shadow-sm">
+              <p className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white drop-shadow-sm">
                 {userPoints.toLocaleString()}
               </p>
             </div>
           </div>
 
+          {/* Category Filter */}
+          {categories.length > 1 && (
+            <div className="mb-6 sm:mb-8 flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-hide">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base font-semibold whitespace-nowrap transition-all ${
+                    selectedCategory === category
+                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg'
+                      : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50 border border-slate-700'
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* Products Grid */}
-          {products.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map((product, index) => (
+          {filteredProducts.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
+              {filteredProducts.map((product, index) => (
                 <div
                   key={product.id}
                   className="animate-fade-in"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <StoreItem
-                    id={product.id}
-                    name={product.title}
-                    description={product.description}
-                    cost={product.costPoints}
-                    stock={product.stock}
-                    onBuy={handleBuy}
-                    onError={(msg) => setToast({ message: msg, type: 'error' })}
+                  <DigitalProductCard
+                    product={product}
+                    userPoints={userPoints}
+                    onPurchase={handlePurchase}
                   />
                 </div>
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-24 backdrop-blur-xl bg-white/60 dark:bg-white/5 border-2 border-slate-200 dark:border-white/10 rounded-3xl">
-              <p className="text-8xl mb-6 animate-bounce-soft drop-shadow-lg">📭</p>
-              <p className="text-slate-700 dark:text-slate-300 text-2xl font-bold mb-2">No products available</p>
-              <p className="text-slate-600 dark:text-slate-400 text-base font-medium">Check back soon for amazing deals!</p>
+            <div className="flex flex-col items-center justify-center py-16 sm:py-20 lg:py-24 backdrop-blur-xl bg-slate-800/30 border-2 border-slate-700 rounded-2xl sm:rounded-3xl">
+              <p className="text-6xl sm:text-7xl lg:text-8xl mb-4 sm:mb-6">📭</p>
+              <p className="text-white text-lg sm:text-xl lg:text-2xl font-bold mb-2">No products available</p>
+              <p className="text-slate-400 text-sm sm:text-base">Check back soon for amazing deals!</p>
             </div>
           )}
         </div>
+
+        {/* Scratch Card Modal */}
+        {purchaseResult && purchaseResult.redeemCode && (
+          <ScratchCardModal
+            isOpen={true}
+            onClose={() => setPurchaseResult(null)}
+            code={purchaseResult.redeemCode}
+            productTitle={purchaseResult.product.title}
+            productValue={purchaseResult.product.value}
+            orderId={purchaseResult.orderId}
+          />
+        )}
 
         {/* Toast */}
         {toast && (

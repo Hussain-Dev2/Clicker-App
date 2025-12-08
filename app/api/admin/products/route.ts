@@ -51,8 +51,8 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
-        const { title , description, costPoints, stock } = await req.json();
-        if (!title  || !costPoints) {
+        const { title, description, costPoints, stock, imageUrl, category, value, region } = await req.json();
+        if (!title || !costPoints) {
             return NextResponse.json(
                 { error: "Missing required fields" },
                 { status: 400 }
@@ -64,6 +64,10 @@ export async function POST(req: Request) {
                 description,
                 costPoints,
                 stock: stock ?? null,
+                imageUrl: imageUrl ?? null,
+                category: category ?? null,
+                value: value ?? null,
+                region: region ?? null,
             },
         });
         

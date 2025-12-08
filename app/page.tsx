@@ -125,26 +125,26 @@ export default function Dashboard() {
           <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-pastel-4 rounded-full mix-blend-normal filter blur-3xl opacity-20 dark:opacity-10 animate-blob"></div>
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 py-12 relative z-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 relative z-10">
           {/* Header */}
-          <div className="mb-12 animate-fade-in">
-            <div className="flex items-center gap-3 mb-2">
-              <span className="text-5xl animate-float">✨</span>
-              <h1 className="text-5xl font-bold bg-gradient-smooth-1 bg-clip-text text-transparent animate-gradient">
+          <div className="mb-8 sm:mb-10 lg:mb-12 animate-fade-in">
+            <div className="flex items-center gap-2 sm:gap-3 mb-2">
+              <span className="text-3xl sm:text-4xl lg:text-5xl animate-float">✨</span>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-smooth-1 bg-clip-text text-transparent animate-gradient">
                 ClickerPro Dashboard
               </h1>
             </div>
-            <p className="text-gray-600 dark:text-gray-300 text-lg">Your journey to rewards begins here — enjoy every click! 🚀</p>
+            <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base lg:text-lg">Your journey to rewards begins here — enjoy every click! 🚀</p>
           </div>
 
           {/* Sponsored rail - randomize slots and variants */}
-          <div className="grid md:grid-cols-2 gap-4 mb-10 animate-fade-in" style={{ animationDelay: '120ms' }}>
+          <div className="grid sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8 lg:mb-10 animate-fade-in" style={{ animationDelay: '120ms' }}>
             <RandomAd label="Sponsored • Hero" />
             <RandomAd label="Sponsored • Sidebar" />
           </div>
 
           {/* Main Grid */}
-          <div className="grid md:grid-cols-3 gap-8 items-center mb-12">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 items-center mb-8 sm:mb-10 lg:mb-12">
             {/* Left: Level Card */}
             <div className="animate-fade-in" style={{ animationDelay: '100ms' }}>
               <LevelCard lifetimePoints={user.lifetimePoints || 0} />
@@ -156,7 +156,7 @@ export default function Dashboard() {
             </div>
 
             {/* Right: Click Button */}
-            <div className="flex justify-center animate-fade-in" style={{ animationDelay: '200ms' }}>
+            <div className="flex justify-center sm:col-span-2 lg:col-span-1 animate-fade-in" style={{ animationDelay: '200ms' }}>
               <ClickButton
                 onSuccess={handleClickSuccess}
                 onError={handleClickError}
@@ -165,46 +165,46 @@ export default function Dashboard() {
           </div>
 
           {/* Info Section */}
-          <div className="grid md:grid-cols-3 gap-6 animate-fade-in" style={{ animationDelay: '300ms' }}>
-            <div className="group glass backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 border-2 border-primary-200/50 dark:border-primary-700/50 rounded-3xl p-8 card-lift hover:border-primary-400 dark:hover:border-primary-500 transition-all duration-500 hover:shadow-glow">
-              <h3 className="font-bold text-xl flex items-center gap-3 mb-4">
-                <span className="text-3xl animate-pulse-soft">💡</span>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 animate-fade-in" style={{ animationDelay: '300ms' }}>
+            <div className="group glass backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 border-2 border-primary-200/50 dark:border-primary-700/50 rounded-2xl sm:rounded-3xl p-5 sm:p-6 lg:p-8 card-lift hover:border-primary-400 dark:hover:border-primary-500 transition-all duration-500 hover:shadow-glow">
+              <h3 className="font-bold text-lg sm:text-xl flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                <span className="text-2xl sm:text-3xl animate-pulse-soft">💡</span>
                 <span className="bg-gradient-smooth-4 bg-clip-text text-transparent">Smart Tips</span>
               </h3>
-              <p className="text-gray-700 dark:text-gray-300 text-base leading-relaxed">
+              <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
                 Click to earn <span className="font-bold text-accent-peach dark:text-warm-400">points</span> — build combos for amazing multipliers! ⚡
               </p>
             </div>
 
-            <div className="group glass backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 border-2 border-secondary-200/50 dark:border-secondary-700/50 rounded-3xl p-8 card-lift hover:border-secondary-400 dark:hover:border-secondary-500 transition-all duration-500 hover:shadow-glow-mint">
-              <h3 className="font-bold text-xl flex items-center gap-3 mb-4">
-                <span className="text-3xl animate-pulse-soft">📈</span>
+            <div className="group glass backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 border-2 border-secondary-200/50 dark:border-secondary-700/50 rounded-2xl sm:rounded-3xl p-5 sm:p-6 lg:p-8 card-lift hover:border-secondary-400 dark:hover:border-secondary-500 transition-all duration-500 hover:shadow-glow-mint">
+              <h3 className="font-bold text-lg sm:text-xl flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                <span className="text-2xl sm:text-3xl animate-pulse-soft">📈</span>
                 <span className="bg-gradient-smooth-3 bg-clip-text text-transparent">Level Up</span>
               </h3>
-              <p className="text-gray-700 dark:text-gray-300 text-base leading-relaxed">
+              <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
                 Explore <span className="font-bold text-accent-mint dark:text-primary-400">activities</span> to boost earnings and unlock achievements! 🎯
               </p>
             </div>
 
-            <div className="group glass backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 border-2 border-warm-200/50 dark:border-warm-700/50 rounded-3xl p-8 card-lift hover:border-warm-400 dark:hover:border-warm-500 transition-all duration-500 hover:shadow-glow-coral">
-              <h3 className="font-bold text-xl flex items-center gap-3 mb-4">
-                <span className="text-3xl animate-pulse-soft">🎁</span>
+            <div className="group glass backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 border-2 border-warm-200/50 dark:border-warm-700/50 rounded-2xl sm:rounded-3xl p-5 sm:p-6 lg:p-8 card-lift hover:border-warm-400 dark:hover:border-warm-500 transition-all duration-500 hover:shadow-glow-coral sm:col-span-2 lg:col-span-1">
+              <h3 className="font-bold text-lg sm:text-xl flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                <span className="text-2xl sm:text-3xl animate-pulse-soft">🎁</span>
                 <span className="bg-gradient-smooth-4 bg-clip-text text-transparent">Rewards</span>
               </h3>
-              <p className="text-gray-700 dark:text-gray-300 text-base leading-relaxed">
+              <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
                 Complete tasks and visit the <span className="font-bold text-accent-sunset dark:text-secondary-400">Shop</span> for exclusive items! 🛍️
               </p>
             </div>
           </div>
 
             {/* Rewarded ad + inline sponsored */}
-            <div className="grid lg:grid-cols-[2fr_1fr] gap-6 my-12 animate-fade-in" style={{ animationDelay: '350ms' }}>
+            <div className="grid lg:grid-cols-[2fr_1fr] gap-4 sm:gap-5 lg:gap-6 my-8 sm:my-10 lg:my-12 animate-fade-in" style={{ animationDelay: '350ms' }}>
               <AdsterraRewarded onReward={handleRewardSuccess} onError={handleRewardError} />
               <RandomAd label="Sponsored • Inline" />
             </div>
 
           {/* Activities Panel */}
-          <div className="my-12 animate-fade-in" style={{ animationDelay: '400ms' }}>
+          <div className="my-8 sm:my-10 lg:my-12 animate-fade-in" style={{ animationDelay: '400ms' }}>
             <ActivitiesPanel />
           </div>
 

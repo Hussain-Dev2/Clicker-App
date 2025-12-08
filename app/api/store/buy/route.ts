@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     
     if (!session || !session.user?.email) {
       return NextResponse.json(
-        { message: 'Unauthorized' },
+        { error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const { productId } = await request.json();
     if (!productId) {
       return NextResponse.json(
-        { message: 'Product ID required' },
+        { error: 'Product ID required' },
         { status: 400 }
       );
     }
@@ -31,15 +31,8 @@ export async function POST(request: NextRequest) {
 
     if (!product) {
       return NextResponse.json(
-        { message: 'Product not found' },
+        { error: 'Product not found' },
         { status: 404 }
-      );
-    }
-
-    if (product.stock <= 0) {
-      return NextResponse.json(
-        { message: 'Product out of stock' },
-        { status: 400 }
       );
     }
 
@@ -50,42 +43,116 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { message: 'User not found' },
+        { error: 'User not found' },
         { status: 404 }
       );
     }
 
     if (user.points < product.costPoints) {
       return NextResponse.json(
-        { message: 'Insufficient points' },
+        { error: 'Insufficient points' },
         { status: 400 }
       );
     }
 
-    // Create purchase and update user/product
-    await prisma.$transaction([
+    // Check if we have available codes for this product
+    const availableCode = await prisma.redemptionCode.findFirst({
+      where: {
+        productId: product.id,
+        isUsed: false,
+      },
+    });
+
+    // Determine order status and code
+    const hasCode = !!availableCode;
+    const status = hasCode ? 'delivered' : 'pending';
+    const redeemCode = hasCode ? availableCode.code : null;
+    const deliveredAt = hasCode ? new Date() : null;
+
+    // Create purchase and update user
+    const updates: any[] = [
       prisma.user.update({
         where: { id: user.id },
         data: { points: { decrement: product.costPoints } },
       }),
-      prisma.product.update({
-        where: { id: productId },
-        data: { stock: { decrement: 1 } },
+      prisma.order.create({
+        data: {
+          userId: user.id,
+          productId: product.id,
+          cost: product.costPoints,
+          redeemCode,
+          isRevealed: false,
+          isUsed: false,
+          status,
+          deliveredAt,
+        },
       }),
-    ]);
+    ];
 
-    const updatedUser = await prisma.user.findUnique({
-      where: { id: user.id },
-    });
+    // If code is available, mark it as used
+    if (availableCode) {
+      updates.push(
+        prisma.redemptionCode.update({
+          where: { id: availableCode.id },
+          data: {
+            isUsed: true,
+            usedAt: new Date(),
+          },
+        })
+      );
+    }
+
+    const [updatedUser, order] = await prisma.$transaction(updates);
+
+    // Update order with code reference
+    if (availableCode) {
+      await prisma.redemptionCode.update({
+        where: { id: availableCode.id },
+        data: { orderId: order.id },
+      });
+    }
+
+    // Create appropriate notification
+    if (hasCode) {
+      await prisma.notification.create({
+        data: {
+          userId: user.id,
+          type: 'order_delivered',
+          title: '🎁 Purchase Successful!',
+          message: `You've purchased ${product.title}!\n\nYour code is ready. Go to Purchases to reveal it.`,
+          orderId: order.id,
+        },
+      });
+    } else {
+      await prisma.notification.create({
+        data: {
+          userId: user.id,
+          type: 'order_pending',
+          title: '⏳ Order Pending',
+          message: `Thank you for purchasing ${product.title}!\n\nYour order will be delivered in less than 2 days. You'll receive a notification when your code is ready.`,
+          orderId: order.id,
+        },
+      });
+    }
 
     return NextResponse.json({
-      message: `✅ Purchased: ${product.title}`,
-      user: { id: updatedUser!.id, points: updatedUser!.points, clicks: updatedUser!.clicks },
+      message: hasCode 
+        ? `✅ Purchased: ${product.title}` 
+        : `⏳ Order Placed: ${product.title} will be delivered in less than 2 days`,
+      redeemCode,
+      orderId: order.id,
+      newPoints: updatedUser.points,
+      status,
+      isPending: !hasCode,
+      product: {
+        title: product.title,
+        value: product.value,
+      },
     });
   } catch (error) {
     console.error('Buy error:', error);
     return NextResponse.json(
-      { message: 'Internal server error' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
