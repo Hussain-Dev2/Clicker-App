@@ -30,6 +30,7 @@ import RandomAd from '@/components/ads/RandomAd';
 import AdsterraRewarded from '@/components/ads/AdsterraRewarded';
 import AdsterraSocialBar from '@/components/ads/AdsterraSocialBar';
 import AdsterraNativeBar from '@/components/ads/AdsterraNativeBar';
+import GoogleAdsense from '@/components/ads/GoogleAdsense';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Loader from '@/components/Loader';
 import { apiFetch } from '@/lib/client';
@@ -224,15 +225,32 @@ export default function Dashboard() {
             <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base lg:text-lg">{t.dashboardSubtitle}</p>
           </div>
 
-          {/* Adsterra Social Bar - Top Position */}
+          {/* Google AdSense - Top Banner */}
           <div className="mb-6 sm:mb-8 lg:mb-10 animate-fade-in" style={{ animationDelay: '100ms' }}>
+            <GoogleAdsense 
+              adSlot="1234567890" 
+              adFormat="horizontal"
+              style={{ minHeight: '90px' }}
+            />
+          </div>
+
+          {/* Adsterra Social Bar */}
+          <div className="mb-6 sm:mb-8 lg:mb-10 animate-fade-in" style={{ animationDelay: '110ms' }}>
             <AdsterraSocialBar />
           </div>
 
-          {/* Sponsored rail - randomize slots and variants */}
+          {/* Google AdSense - Dual Display Ads */}
           <div className="grid sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8 lg:mb-10 animate-fade-in" style={{ animationDelay: '120ms' }}>
-            <RandomAd label="Sponsored • Hero" />
-            <RandomAd label="Sponsored • Sidebar" />
+            <GoogleAdsense 
+              adSlot="1234567891" 
+              adFormat="rectangle"
+              style={{ minHeight: '250px' }}
+            />
+            <GoogleAdsense 
+              adSlot="1234567892" 
+              adFormat="rectangle"
+              style={{ minHeight: '250px' }}
+            />
           </div>
 
           {/* Main Grid */}
@@ -290,6 +308,15 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* Google AdSense - In-Article Ad */}
+          <div className="my-6 sm:my-8 animate-fade-in" style={{ animationDelay: '350ms' }}>
+            <GoogleAdsense 
+              adSlot="1234567893" 
+              adFormat="fluid"
+              style={{ minHeight: '200px' }}
+            />
+          </div>
+
             {/* Rewarded ad + inline sponsored */}
           {/* Activities Panel */}
           <div className="my-8 sm:my-10 lg:my-12 animate-fade-in" style={{ animationDelay: '400ms' }}>
@@ -300,19 +327,27 @@ export default function Dashboard() {
             />
           </div>
 
-          {/* Adsterra Native Bar - Middle Position */}
+          {/* Google AdSense - Display Ad */}
           <div className="animate-fade-in" style={{ animationDelay: '450ms' }}>
+            <GoogleAdsense 
+              adSlot="1234567894" 
+              adFormat="auto"
+              style={{ minHeight: '280px' }}
+            />
+          </div>
+
+          {/* Adsterra Native Bar */}
+          <div className="my-6 sm:my-8 animate-fade-in" style={{ animationDelay: '480ms' }}>
             <AdsterraNativeBar />
           </div>
 
-          {/* Footer sponsored slot */}
+          {/* Google AdSense - Footer Banner */}
           <div className="animate-fade-in" style={{ animationDelay: '500ms' }}>
-            <RandomAd label="Sponsored • Footer" />
-          </div>
-
-          {/* Footer sponsored slot */}
-          <div className="animate-fade-in" style={{ animationDelay: '500ms' }}>
-            <RandomAd label="Sponsored • Footer" />
+            <GoogleAdsense 
+              adSlot="1234567895" 
+              adFormat="horizontal"
+              style={{ minHeight: '90px' }}
+            />
           </div>
 
           {/* Sign-in prompt for non-authenticated users */}

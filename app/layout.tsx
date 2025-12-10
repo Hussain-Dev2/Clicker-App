@@ -40,6 +40,18 @@ export default function RootLayout({
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4681103183883079"
           crossOrigin="anonymous"
         />
+        {/* Google AdSense Auto Ads - Automatically places ads throughout the site */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (adsbygoogle = window.adsbygoogle || []).push({
+                google_ad_client: "ca-pub-4681103183883079",
+                enable_page_level_ads: true,
+                overlays: {bottom: true}
+              });
+            `,
+          }}
+        />
       </head>
       <body className="bg-gradient-to-br from-cyan-50 via-orange-50 to-cyan-100 dark:from-gray-900 dark:via-cyan-900 dark:to-orange-950 text-gray-900 dark:text-gray-50 transition-all duration-500 ease-in-out">
         <Providers>
