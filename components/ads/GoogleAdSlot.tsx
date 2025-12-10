@@ -29,11 +29,12 @@ export default function GoogleAdSlot({
 
   const resolvedSlot = useMemo(() => slotId || DEFAULT_SLOT || '', [slotId]);
 
+  const configError = !resolvedSlot ? 'Ad slot is not configured. Add NEXT_PUBLIC_ADSENSE_SLOT_ID.' : null;
+
   useEffect(() => {
     let canceled = false;
 
     if (!resolvedSlot) {
-      setError('Ad slot is not configured. Add NEXT_PUBLIC_ADSENSE_SLOT_ID.');
       return () => {
         canceled = true;
       };
@@ -60,12 +61,11 @@ export default function GoogleAdSlot({
     rectangle: { display: 'block', width: '100%', minHeight: '250px' },
     fluid: { display: 'block' },
   };
-
-  if (error) {
+  if (configError || error) {
     return (
       <div className={`rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-white/60 dark:bg-slate-900/60 p-4 text-sm text-slate-500 ${className || ''}`}>
         <div className="font-semibold mb-1 text-slate-700 dark:text-slate-200">{label}</div>
-        <p>{error}</p>
+        <p>{configError || error}</p>
       </div>
     );
   }

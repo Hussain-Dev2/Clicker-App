@@ -24,7 +24,7 @@ interface GoogleAdsenseProps {
 
 declare global {
   interface Window {
-    adsbygoogle: unknown[];
+    adsbygoogle?: Array<Record<string, unknown>> & { push: (params: Record<string, unknown>) => void };
   }
 }
 
