@@ -1,5 +1,33 @@
 'use client';
 
+/**
+ * ActivitiesPanel Component
+ * 
+ * Displays and manages bonus earning activities beyond regular clicking.
+ * Each activity has a cooldown period and awards varying amounts of points.
+ * 
+ * Activities Available:
+ * 1. Daily Bonus (24h cooldown) - Regular daily reward scaled by level
+ * 2. Watch Ad (5min cooldown) - Watch advertisement for quick points
+ * 3. Spin Wheel (6h cooldown) - Random reward between 50-200 points
+ * 4. Mini Task (10min cooldown) - Complete quick challenges
+ * 5. Share & Earn (30min cooldown) - Social sharing rewards
+ * 
+ * Features:
+ * - Real-time cooldown tracking
+ * - Level-scaled rewards
+ * - Visual feedback for completed activities
+ * - Special modals for interactive activities (spin wheel, ad watch)
+ * - Automatic refresh of activity status
+ * - Toast notifications for success/error
+ * 
+ * Reward Scaling:
+ * - Daily Bonus: Uses dailyBonusMultiplier from user level
+ * - Watch Ad: Uses adReward from user level
+ * - Other activities: Uses clickMultiplier from user level
+ * - Spin Wheel: Random selection with level multiplier applied
+ */
+
 import { useState, useEffect } from 'react';
 import Loader from '@/components/Loader';
 import SpinWheelModal from '@/components/SpinWheelModal';
@@ -7,23 +35,30 @@ import AdWatchModal from '@/components/AdWatchModal';
 import { apiFetch } from '@/lib/client';
 import { calculateLevel } from '@/lib/level-system';
 
+/**
+ * Activity definition interface
+ */
 interface Activity {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  reward: number;
-  cooldown: number; // in seconds
-  energyCost: number;
+  id: string; // Unique identifier matching database activityId
+  name: string; // Display name
+  description: string; // User-facing description
+  icon: string; // Emoji icon for visual representation
+  reward: number; // Base reward points (scaled by level)
+  cooldown: number; // Cooldown period in seconds
+  energyCost: number; // Energy required (future feature, currently unused)
 }
 
+/**
+ * Available activities configuration
+ * Base rewards are multiplied by user's level bonuses
+ */
 const ACTIVITIES: Activity[] = [
   {
     id: 'daily_bonus',
     name: 'Daily Bonus',
     description: 'Claim your daily reward',
     icon: '🎁',
-    reward: 100,
+    reward: 100, // Multiplied by dailyBonusMultiplier
     cooldown: 86400, // 24 hours
     energyCost: 0,
   },
@@ -32,7 +67,7 @@ const ACTIVITIES: Activity[] = [
     name: 'Watch Ad',
     description: 'Watch a short ad for points',
     icon: '📺',
-    reward: 50,
+    reward: 50, // Replaced by level.adReward
     cooldown: 300, // 5 minutes
     energyCost: 0,
   },
@@ -41,7 +76,7 @@ const ACTIVITIES: Activity[] = [
     name: 'Spin Wheel',
     description: 'Try your luck for big rewards!',
     icon: '🎡',
-    reward: 200,
+    reward: 200, // Random between 50-200, multiplied by level
     cooldown: 21600, // 6 hours
     energyCost: 0,
   },
@@ -50,33 +85,48 @@ const ACTIVITIES: Activity[] = [
     name: 'Mini Task',
     description: 'Complete quick challenges',
     icon: '✅',
-    reward: 75,
+    reward: 75, // Multiplied by clickMultiplier
     cooldown: 600, // 10 minutes
-    energyCost: 5,
+    energyCost: 5, // Future energy system
   },
   {
     id: 'share_reward',
     name: 'Share & Earn',
     description: 'Share with friends for bonus',
     icon: '🔗',
-    reward: 30,
+    reward: 30, // Multiplied by clickMultiplier
     cooldown: 1800, // 30 minutes
     energyCost: 0,
   },
 ];
 
+/**
+ * Activity completion timestamps mapping
+ */
 interface ActivityTimestamp {
-  [key: string]: number; // timestamp of last completion
+  [key: string]: number; // Unix timestamp of last completion
 }
 
+/**
+ * Component props interface
+ */
 interface ActivitiesPanelProps {
-  onPointsEarned?: () => void;
-  lifetimePoints?: number;
+  onPointsEarned?: () => void; // Callback to refresh parent component
+  lifetimePoints?: number; // User's lifetime points for level calculation
 }
 
+/**
+ * ActivitiesPanel Component
+ * Main component for displaying and managing bonus earning activities
+ */
 export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0 }: ActivitiesPanelProps = {}) {
+  // Loading state - tracks which activity is currently being processed
   const [loading, setLoading] = useState<string | null>(null);
+  
+  // Activity completion timestamps for cooldown calculations
   const [lastActivity, setLastActivity] = useState<ActivityTimestamp>({});
+  
+  // Message display for user feedback
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' }>({
     text: '',
     type: 'success',

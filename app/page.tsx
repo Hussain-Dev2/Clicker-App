@@ -1,5 +1,24 @@
 'use client';
 
+/**
+ * Main Dashboard Page
+ * 
+ * This is the primary user interface where users can:
+ * - Click to earn points
+ * - View their current stats (points, level, clicks)
+ * - Complete activities for bonus rewards
+ * - Watch ads for additional points
+ * - Track their progression through the level system
+ * 
+ * Features:
+ * - Real-time user data fetching and updates
+ * - Multi-language support (EN/AR)
+ * - Responsive design for all devices
+ * - Toast notifications for user feedback
+ * - Protected route requiring authentication
+ * - Animated background and UI elements
+ */
+
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import ClickButton from '@/components/ClickButton';
@@ -14,24 +33,47 @@ import Loader from '@/components/Loader';
 import { apiFetch } from '@/lib/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 
+/**
+ * User data interface - represents the authenticated user's game stats
+ */
 interface User {
   id: string;
-  points: number;
-  clicks: number;
-  lifetimePoints: number;
+  points: number; // Current spendable points
+  clicks: number; // Total lifetime clicks
+  lifetimePoints: number; // Total points earned (used for level calculation)
 }
 
+/**
+ * API response structure from /api/auth/me endpoint
+ */
 interface MeResponse {
   user: User;
 }
 
+/**
+ * Dashboard Component
+ * Main game interface with click mechanics, user stats, and activity system
+ */
 export default function Dashboard() {
+  // NextAuth session management
   const { data: session, status } = useSession();
+  
+  // Internationalization hook for multi-language support
   const { t } = useLanguage();
+  
+  // User state management
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  // Toast notification state for user feedback
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
+  /**
+   * Effect: Fetch user data when authentication status changes
+   * 
+   * Triggers when user logs in or authentication state is confirmed.
+   * Handles both authenticated and unauthenticated states.
+   */
   useEffect(() => {
     if (status === 'authenticated') {
       fetchUser();
@@ -40,6 +82,14 @@ export default function Dashboard() {
     }
   }, [status]);
 
+  /**
+   * Fetch current user data from the API
+   * 
+   * Retrieves the user's latest stats including points, clicks, and lifetime points.
+   * Called on initial load and after completing activities to refresh data.
+   * 
+   * @throws Displays error toast if fetch fails
+   */
   const fetchUser = async () => {
     try {
       const data = await apiFetch<MeResponse>('/auth/me');
@@ -55,30 +105,52 @@ export default function Dashboard() {
     }
   };
 
+  /**
+   * Handle successful click action
+   * 
+   * Updates local user state with new points and clicks.
+   * Shows milestone notification when user reaches click milestones.
+   * 
+   * @param points - Updated total points
+   * @param clicks - Updated total clicks
+   * @param milestone - Whether a milestone was reached (triggers achievement)
+   */
   const handleClickSuccess = (points: number, clicks: number, milestone: boolean) => {
+    // Update user state with new values
     setUser((prev) => prev ? { ...prev, points, clicks } : null);
     
+    // Show milestone celebration
     if (milestone) {
       setToast({
         message: `🎉 Milestone reached! ${clicks} clicks!`,
         type: 'info',
       });
-      // TODO: Integrate ad SDK here
+      // TODO: Integrate ad SDK here for monetization
       // showAdvertisement();
     }
   };
 
+  /**
+   * Handle successful rewarded ad completion
+   * 
+   * Called when user successfully watches a rewarded video ad.
+   * Updates user state with new points and lifetime points earned from the ad.
+   * 
+   * @param rewardedUser - Updated user object with new point totals
+   * @param reward - Amount of points earned from this ad
+   */
   const handleRewardSuccess = (
     rewardedUser: { id: string; points: number; lifetimePoints: number; clicks: number },
     reward: number,
   ) => {
+    // Update user state - preserve existing if available, otherwise create new
     setUser((prev) =>
       prev
         ? {
             ...prev,
             points: rewardedUser.points,
             lifetimePoints: rewardedUser.lifetimePoints,
-            clicks: rewardedUser.clicks ?? prev.clicks,
+            clicks: rewardedUser.clicks ?? prev.clicks, // Fallback to previous clicks if not provided
           }
         : {
             id: rewardedUser.id,
@@ -88,16 +160,27 @@ export default function Dashboard() {
           }
     );
 
+    // Show success notification
     setToast({
       message: `✅ Rewarded ad complete: +${reward} points`,
       type: 'success',
     });
   };
 
+  /**
+   * Handle rewarded ad errors
+   * 
+   * @param message - Error message to display
+   */
   const handleRewardError = (message: string) => {
     setToast({ message, type: 'error' });
   };
 
+  /**
+   * Handle click action errors
+   * 
+   * @param message - Error message to display
+   */
   const handleClickError = (message: string) => {
     setToast({ message, type: 'error' });
   };
