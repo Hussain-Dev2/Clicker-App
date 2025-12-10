@@ -143,6 +143,12 @@ export const translations = {
     loadingDashboard: 'Loading your dashboard...',
     sponsored: 'Sponsored',
     footer: 'Footer',
+    
+    // Authentication prompts
+    signInRequired: 'Please sign in to start earning points!',
+    signInToPlay: 'Sign in to start earning points!',
+    signInDescription: 'Create an account to save your progress, earn rewards, and compete with others!',
+    signIn: 'Sign In / Register',
   },
   ar: {
     // Header
@@ -287,6 +293,12 @@ export const translations = {
     loadingDashboard: 'جارٍ تحميل لوحة التحكم...',
     sponsored: 'برعاية',
     footer: 'التذييل',
+    
+    // Authentication prompts
+    signInRequired: 'يرجى تسجيل الدخول لبدء كسب النقاط!',
+    signInToPlay: 'سجل دخولك لبدء كسب النقاط!',
+    signInDescription: 'أنشئ حسابًا لحفظ تقدمك وكسب المكافآت والمنافسة مع الآخرين!',
+    signIn: 'تسجيل الدخول / إنشاء حساب',
   },
 };
 

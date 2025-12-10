@@ -4,11 +4,14 @@ import PointsStatsCard from '@/components/PointsStatsCard';
 import AchievementsComponent from '@/components/AchievementsComponent';
 import PointsHistoryComponent from '@/components/PointsHistoryComponent';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { useSession } from 'next-auth/react';
 
 export default function StatsPage() {
+  const { status } = useSession();
+  const isAuthenticated = status === 'authenticated';
+
   return (
-    <ProtectedRoute>
-      <main className="min-h-screen bg-gradient-to-br from-white via-cyan-50 to-orange-50 dark:from-slate-900 dark:via-cyan-950 dark:to-slate-900 relative overflow-hidden">
+    <main className="min-h-screen bg-gradient-to-br from-white via-cyan-50 to-orange-50 dark:from-slate-900 dark:via-cyan-950 dark:to-slate-900 relative overflow-hidden">
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-cyan-400 rounded-full mix-blend-multiply filter blur-3xl opacity-15 dark:opacity-20 animate-blob"></div>
@@ -34,16 +37,31 @@ export default function StatsPage() {
           </div>
 
           {/* Achievements and History Grid */}
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="animate-fade-in" style={{ animationDelay: '200ms' }}>
-              <AchievementsComponent />
+          {isAuthenticated ? (
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="animate-fade-in" style={{ animationDelay: '200ms' }}>
+                <AchievementsComponent />
+              </div>
+              <div className="animate-fade-in" style={{ animationDelay: '300ms' }}>
+                <PointsHistoryComponent />
+              </div>
             </div>
-            <div className="animate-fade-in" style={{ animationDelay: '300ms' }}>
-              <PointsHistoryComponent />
+          ) : (
+            <div className="glass backdrop-blur-xl bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 border-2 border-cyan-300 dark:border-cyan-600 rounded-3xl p-8 text-center animate-fade-in">
+              <p className="text-3xl mb-4">🔒</p>
+              <p className="text-2xl font-bold mb-3">Sign in to view your stats</p>
+              <p className="text-slate-600 dark:text-slate-300 mb-6">
+                Track your performance, view achievements, and see your complete points history!
+              </p>
+              <a
+                href="/login"
+                className="inline-block px-8 py-3 bg-gradient-ocean text-white font-semibold rounded-xl hover:shadow-glow transition-all duration-300"
+              >
+                Sign In / Register
+              </a>
             </div>
-          </div>
+          )}
         </div>
       </main>
-    </ProtectedRoute>
   );
 }

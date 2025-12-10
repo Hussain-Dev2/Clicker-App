@@ -43,11 +43,14 @@ export default function Shop() {
   const [userPoints, setUserPoints] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [purchaseResult, setPurchaseResult] = useState<PurchaseResponse | null>(null);
+  const isAuthenticated = status === 'authenticated';
 
   useEffect(() => {
-    if (status === 'authenticated') {
-      Promise.all([fetchProducts(), fetchUserPoints()]);
-    } else if (status === 'unauthenticated') {
+    // Always fetch products, fetch user points only if authenticated
+    fetchProducts();
+    if (isAuthenticated) {
+      fetchUserPoints();
+    } else {
       setLoading(false);
     }
   }, [status]);
@@ -76,6 +79,15 @@ export default function Shop() {
   };
 
   const handlePurchase = async (productId: string) => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      setToast({ 
+        message: '🔐 Please sign in to purchase items from the store!', 
+        type: 'error' 
+      });
+      return;
+    }
+
     try {
       const response = await fetch('/api/store/buy', {
         method: 'POST',
@@ -288,6 +300,19 @@ export default function Shop() {
             productValue={purchaseResult.product.value}
             orderId={purchaseResult.orderId}
           />
+        )}
+
+        {/* Sign-in prompt for non-authenticated users */}
+        {!isAuthenticated && (
+          <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 glass backdrop-blur-xl bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-2 border-purple-400 dark:border-purple-600 rounded-2xl p-4 text-center animate-fade-in shadow-glow max-w-md mx-4">
+            <p className="text-white font-semibold mb-2">🔐 Sign in to purchase items!</p>
+            <a
+              href="/login"
+              className="inline-block px-6 py-2 bg-gradient-ocean text-white font-semibold rounded-lg hover:shadow-glow transition-all duration-300 text-sm"
+            >
+              Sign In / Register
+            </a>
+          </div>
         )}
 
         {/* Toast */}

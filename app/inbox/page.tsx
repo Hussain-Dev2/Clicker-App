@@ -21,18 +21,15 @@ export default function InboxPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
+  const isAuthenticated = status === 'authenticated';
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login');
-    }
-  }, [status, router]);
-
-  useEffect(() => {
-    if (session) {
+    if (isAuthenticated) {
       fetchNotifications();
+    } else {
+      setLoading(false);
     }
-  }, [session]);
+  }, [status, isAuthenticated]);
 
   const fetchNotifications = async () => {
     try {
@@ -108,12 +105,14 @@ export default function InboxPage() {
                 🔔 Inbox
               </h1>
               <p className="text-slate-300 text-sm sm:text-base">
-                {unreadCount > 0
-                  ? `${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}`
-                  : 'All caught up!'}
+                {isAuthenticated
+                  ? unreadCount > 0
+                    ? `${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}`
+                    : 'All caught up!'
+                  : 'Stay updated with your orders and rewards'}
               </p>
             </div>
-            {unreadCount > 0 && (
+            {isAuthenticated && unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
                 className="w-full sm:w-auto px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-sm sm:text-base rounded-lg transition-colors"
@@ -125,7 +124,19 @@ export default function InboxPage() {
 
           {/* Notifications List */}
           <div className="space-y-3">
-            {notifications.length === 0 ? (
+            {!isAuthenticated ? (
+              <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 backdrop-blur-xl rounded-2xl p-8 sm:p-10 lg:p-12 border-2 border-cyan-400 text-center">
+                <div className="text-5xl sm:text-6xl mb-4">🔒</div>
+                <p className="text-white text-xl sm:text-2xl font-bold mb-3">Sign in to view your notifications</p>
+                <p className="text-slate-300 text-sm sm:text-base mb-6">Get updates on orders, rewards, and special offers!</p>
+                <a
+                  href="/login"
+                  className="inline-block px-8 py-3 bg-gradient-ocean text-white font-semibold rounded-xl hover:shadow-glow transition-all duration-300"
+                >
+                  Sign In / Register
+                </a>
+              </div>
+            ) : notifications.length === 0 ? (
               <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl sm:rounded-2xl p-8 sm:p-10 lg:p-12 border border-slate-700 text-center">
                 <div className="text-5xl sm:text-6xl mb-4">📭</div>
                 <p className="text-slate-400 text-base sm:text-lg">No notifications yet</p>

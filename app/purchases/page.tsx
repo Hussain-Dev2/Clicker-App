@@ -30,12 +30,15 @@ export default function PurchasesPage() {
   const [loading, setLoading] = useState(true);
   const [selectedPurchase, setSelectedPurchase] = useState<Purchase | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const isAuthenticated = status === 'authenticated';
 
   useEffect(() => {
-    if (status === 'authenticated') {
+    if (isAuthenticated) {
       fetchPurchases();
+    } else {
+      setLoading(false);
     }
-  }, [status]);
+  }, [status, isAuthenticated]);
 
   const fetchPurchases = async () => {
     try {
@@ -83,8 +86,7 @@ export default function PurchasesPage() {
   }
 
   return (
-    <ProtectedRoute>
-      <main className="min-h-screen bg-gradient-to-br from-slate-900 via-cyan-950 to-slate-900">
+    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-cyan-950 to-slate-900">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
           {/* Header */}
           <div className="mb-6 sm:mb-8">
@@ -265,6 +267,18 @@ export default function PurchasesPage() {
                 </div>
               ))}
             </div>
+          ) : !isAuthenticated ? (
+            <div className="flex flex-col items-center justify-center py-16 sm:py-20 lg:py-24 backdrop-blur-xl bg-gradient-to-r from-purple-500/20 to-blue-500/20 border-2 border-purple-400 rounded-2xl sm:rounded-3xl">
+              <p className="text-6xl sm:text-7xl lg:text-8xl mb-4 sm:mb-6">🔒</p>
+              <p className="text-white text-lg sm:text-xl lg:text-2xl font-bold mb-2">Sign in to view your purchases</p>
+              <p className="text-slate-300 text-sm sm:text-base mb-4 sm:mb-6 text-center px-4">Track your orders and access your redeemed codes!</p>
+              <Link
+                href="/login"
+                className="px-6 sm:px-8 py-2 sm:py-3 bg-gradient-ocean text-white rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm sm:text-base"
+              >
+                Sign In / Register
+              </Link>
+            </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-16 sm:py-20 lg:py-24 backdrop-blur-xl bg-slate-800/30 border-2 border-slate-700 rounded-2xl sm:rounded-3xl">
               <p className="text-6xl sm:text-7xl lg:text-8xl mb-4 sm:mb-6">🛒</p>
@@ -295,6 +309,5 @@ export default function PurchasesPage() {
           />
         )}
       </main>
-    </ProtectedRoute>
   );
 }

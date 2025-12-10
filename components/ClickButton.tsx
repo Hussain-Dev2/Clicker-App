@@ -50,6 +50,7 @@ interface ClickResponse {
 interface ClickButtonProps {
   onSuccess: (points: number, clicks: number, milestone: boolean) => void;
   onError: (message: string) => void;
+  isAuthenticated?: boolean;
 }
 
 /**
@@ -65,7 +66,7 @@ interface FloatingPoint {
  * ClickButton Component
  * Main interactive button with animations and game logic
  */
-export default function ClickButton({ onSuccess, onError }: ClickButtonProps) {
+export default function ClickButton({ onSuccess, onError, isAuthenticated = true }: ClickButtonProps) {
   // Internationalization
   const { t } = useLanguage();
   
@@ -112,6 +113,12 @@ export default function ClickButton({ onSuccess, onError }: ClickButtonProps) {
    * @param e - Mouse event for ripple position calculation
    */
   const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      onError(t.signInRequired || 'Please sign in to start earning points!');
+      return;
+    }
+
     // Prevent spam clicking during API call
     if (loading) return;
 

@@ -28,6 +28,8 @@ import Toast from '@/components/Toast';
 import ActivitiesPanel from '@/components/ActivitiesPanel';
 import RandomAd from '@/components/ads/RandomAd';
 import AdsterraRewarded from '@/components/ads/AdsterraRewarded';
+import AdsterraSocialBar from '@/components/ads/AdsterraSocialBar';
+import AdsterraNativeBar from '@/components/ads/AdsterraNativeBar';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Loader from '@/components/Loader';
 import { apiFetch } from '@/lib/client';
@@ -185,7 +187,7 @@ export default function Dashboard() {
     setToast({ message, type: 'error' });
   };
 
-  if (loading) {
+  if (loading && status === 'loading') {
     return (
       <main className="min-h-screen bg-gradient-to-br from-slate-900 via-cyan-950 to-slate-900 flex items-center justify-center">
         <div className="flex flex-col items-center gap-6">
@@ -196,13 +198,12 @@ export default function Dashboard() {
     );
   }
 
-  if (!user) {
-    return null;
-  }
+  // Show demo data for non-authenticated users
+  const displayUser = user || { id: 'guest', points: 0, clicks: 0, lifetimePoints: 0 };
+  const isAuthenticated = status === 'authenticated';
 
   return (
-    <ProtectedRoute>
-      <main className="min-h-screen bg-gradient-to-br from-cyan-50 via-orange-50/30 to-cyan-100 dark:from-gray-900 dark:via-cyan-950/50 dark:to-orange-950/50 relative overflow-hidden">
+    <main className="min-h-screen bg-gradient-to-br from-cyan-50 via-orange-50/30 to-cyan-100 dark:from-gray-900 dark:via-cyan-950/50 dark:to-orange-950/50 relative overflow-hidden">
         {/* Animated background elements - Modern floating orbs */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-ocean rounded-full mix-blend-normal filter blur-3xl opacity-30 dark:opacity-20 animate-blob"></div>
@@ -223,6 +224,11 @@ export default function Dashboard() {
             <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base lg:text-lg">{t.dashboardSubtitle}</p>
           </div>
 
+          {/* Adsterra Social Bar - Top Position */}
+          <div className="mb-6 sm:mb-8 lg:mb-10 animate-fade-in" style={{ animationDelay: '100ms' }}>
+            <AdsterraSocialBar />
+          </div>
+
           {/* Sponsored rail - randomize slots and variants */}
           <div className="grid sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8 lg:mb-10 animate-fade-in" style={{ animationDelay: '120ms' }}>
             <RandomAd label="Sponsored • Hero" />
@@ -233,12 +239,12 @@ export default function Dashboard() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 items-center mb-8 sm:mb-10 lg:mb-12">
             {/* Left: Level Card */}
             <div className="animate-fade-in" style={{ animationDelay: '100ms' }}>
-              <LevelCard lifetimePoints={user.lifetimePoints || 0} />
+              <LevelCard lifetimePoints={displayUser.lifetimePoints || 0} />
             </div>
 
             {/* Center: User Stats */}
             <div className="animate-fade-in" style={{ animationDelay: '150ms' }}>
-              <UserCard points={user.points} clicks={user.clicks} />
+              <UserCard points={displayUser.points} clicks={displayUser.clicks} />
             </div>
 
             {/* Right: Click Button */}
@@ -246,6 +252,7 @@ export default function Dashboard() {
               <ClickButton
                 onSuccess={handleClickSuccess}
                 onError={handleClickError}
+                isAuthenticated={isAuthenticated}
               />
             </div>
           </div>
@@ -284,20 +291,45 @@ export default function Dashboard() {
           </div>
 
             {/* Rewarded ad + inline sponsored */}
-            <div className="grid lg:grid-cols-[2fr_1fr] gap-4 sm:gap-5 lg:gap-6 my-8 sm:my-10 lg:my-12 animate-fade-in" style={{ animationDelay: '350ms' }}>
-              <AdsterraRewarded onReward={handleRewardSuccess} onError={handleRewardError} />
-              <RandomAd label="Sponsored • Inline" />
-            </div>
-
           {/* Activities Panel */}
           <div className="my-8 sm:my-10 lg:my-12 animate-fade-in" style={{ animationDelay: '400ms' }}>
-            <ActivitiesPanel onPointsEarned={fetchUser} lifetimePoints={user?.lifetimePoints || 0} />
+            <ActivitiesPanel 
+              onPointsEarned={fetchUser} 
+              lifetimePoints={displayUser.lifetimePoints || 0}
+              isAuthenticated={isAuthenticated}
+            />
+          </div>
+
+          {/* Adsterra Native Bar - Middle Position */}
+          <div className="animate-fade-in" style={{ animationDelay: '450ms' }}>
+            <AdsterraNativeBar />
           </div>
 
           {/* Footer sponsored slot */}
-          <div className="animate-fade-in" style={{ animationDelay: '450ms' }}>
+          <div className="animate-fade-in" style={{ animationDelay: '500ms' }}>
             <RandomAd label="Sponsored • Footer" />
           </div>
+
+          {/* Footer sponsored slot */}
+          <div className="animate-fade-in" style={{ animationDelay: '500ms' }}>
+            <RandomAd label="Sponsored • Footer" />
+          </div>
+
+          {/* Sign-in prompt for non-authenticated users */}
+          {!isAuthenticated && (
+            <div className="mt-8 glass backdrop-blur-xl bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-2 border-cyan-300 dark:border-cyan-600 rounded-3xl p-6 text-center animate-fade-in">
+              <p className="text-lg font-semibold mb-3">🔐 {t.signInToPlay || 'Sign in to start earning points!'}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                {t.signInDescription || 'Create an account to save your progress, earn rewards, and compete with others!'}
+              </p>
+              <a
+                href="/login"
+                className="inline-block px-8 py-3 bg-gradient-ocean text-white font-semibold rounded-xl hover:shadow-glow transition-all duration-300"
+              >
+                {t.signIn || 'Sign In / Register'}
+              </a>
+            </div>
+          )}
 
           {toast && (
             <Toast
@@ -308,6 +340,5 @@ export default function Dashboard() {
           )}
         </div>
       </main>
-    </ProtectedRoute>
   );
 }

@@ -113,13 +113,14 @@ interface ActivityTimestamp {
 interface ActivitiesPanelProps {
   onPointsEarned?: () => void; // Callback to refresh parent component
   lifetimePoints?: number; // User's lifetime points for level calculation
+  isAuthenticated?: boolean; // Whether user is signed in
 }
 
 /**
  * ActivitiesPanel Component
  * Main component for displaying and managing bonus earning activities
  */
-export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0 }: ActivitiesPanelProps = {}) {
+export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, isAuthenticated = true }: ActivitiesPanelProps = {}) {
   // Loading state - tracks which activity is currently being processed
   const [loading, setLoading] = useState<string | null>(null);
   
@@ -139,8 +140,10 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0 }: 
   // Calculate user's level
   const level = calculateLevel(lifetimePoints);
 
-  // Fetch activity status from server
+  // Fetch activity status from server (only if authenticated)
   useEffect(() => {
+    if (!isAuthenticated) return;
+
     const fetchActivityStatus = async () => {
       try {
         const response = await apiFetch<{ 
@@ -172,7 +175,7 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0 }: 
     // Refresh status every minute
     const interval = setInterval(fetchActivityStatus, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isAuthenticated]);
 
   // Calculate actual rewards based on level
   const getActivityReward = (activity: Activity): number => {
@@ -203,6 +206,15 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0 }: 
   };
 
   const handleActivityClick = async (activity: Activity) => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      setMessage({ 
+        text: '🔐 Please sign in to complete activities and earn rewards!', 
+        type: 'error' 
+      });
+      return;
+    }
+
     if (!canComplete(activity)) {
       setMessage({
         text: `Available in ${getTimeRemaining(activity)}`,
