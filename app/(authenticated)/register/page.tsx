@@ -1,18 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import Toast from '@/components/Toast';
 
-export default function Register() {
-  const router = useRouter();
+// Separate component for search params logic
+function ReferralHandler({ setReferralCode }: { setReferralCode: (code: string | null) => void }) {
   const searchParams = useSearchParams();
-  const { data: session, status } = useSession();
-  const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: 'error' } | null>(null);
-  const [referralCode, setReferralCode] = useState<string | null>(null);
 
   useEffect(() => {
     // Get referral code from URL
@@ -22,7 +18,17 @@ export default function Register() {
       // Store in session storage for after OAuth redirect
       sessionStorage.setItem('referralCode', ref);
     }
-  }, [searchParams]);
+  }, [searchParams, setReferralCode]);
+
+  return null;
+}
+
+function RegisterContent() {
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'error' } | null>(null);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === 'authenticated') {
@@ -40,15 +46,19 @@ export default function Register() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-primary-50 via-warm-50 to-secondary-50 dark:from-gray-900 dark:via-secondary-900/50 dark:to-primary-900/50 flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-pastel-2 rounded-full mix-blend-normal filter blur-3xl opacity-40 dark:opacity-25 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-pastel-4 rounded-full mix-blend-normal filter blur-3xl opacity-40 dark:opacity-25 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-gradient-smooth-3 rounded-full mix-blend-normal filter blur-3xl opacity-35 dark:opacity-20 animate-blob animation-delay-4000"></div>
-      </div>
+    <>
+      <Suspense fallback={null}>
+        <ReferralHandler setReferralCode={setReferralCode} />
+      </Suspense>
+      <main className="min-h-screen bg-gradient-to-br from-primary-50 via-warm-50 to-secondary-50 dark:from-gray-900 dark:via-secondary-900/50 dark:to-primary-900/50 flex items-center justify-center px-4 relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-pastel-2 rounded-full mix-blend-normal filter blur-3xl opacity-40 dark:opacity-25 animate-blob"></div>
+          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-pastel-4 rounded-full mix-blend-normal filter blur-3xl opacity-40 dark:opacity-25 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-gradient-smooth-3 rounded-full mix-blend-normal filter blur-3xl opacity-35 dark:opacity-20 animate-blob animation-delay-4000"></div>
+        </div>
 
-      <div className="w-full max-w-md relative z-10">
+        <div className="w-full max-w-md relative z-10">
         {/* Modern glass card */}
         <div className="glass backdrop-blur-2xl bg-white/80 dark:bg-gray-900/80 border-2 border-secondary-200/60 dark:border-secondary-700/60 rounded-3xl shadow-2xl p-10 hover:shadow-glow-purple transition-all duration-500 card-lift">
           {/* Logo/Header */}
@@ -134,13 +144,29 @@ export default function Register() {
         </div>
       </div>
 
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
-    </main>
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
+          />
+        )}
+      </main>
+    </>
+  );
+}
+
+export default function Register() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+        </div>
+      </div>
+    }>
+      <RegisterContent />
+    </Suspense>
   );
 }
