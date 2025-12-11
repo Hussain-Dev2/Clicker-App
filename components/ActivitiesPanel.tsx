@@ -33,6 +33,7 @@ import Loader from '@/components/Loader';
 import SpinWheelModal from '@/components/SpinWheelModal';
 import AdWatchModal from '@/components/AdWatchModal';
 import ShareEarnModal from '@/components/ShareEarnModal';
+import InterstitialAd from '@/components/ads/InterstitialAd';
 import { apiFetch } from '@/lib/client';
 import { calculateLevel } from '@/lib/level-system';
 
@@ -138,6 +139,7 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
   const [showAdWatch, setShowAdWatch] = useState(false);
   const [adReward, setAdReward] = useState<number>(0);
   const [showShareEarn, setShowShareEarn] = useState(false);
+  const [showInterstitial, setShowInterstitial] = useState(false);
 
   // Calculate user's level
   const level = calculateLevel(lifetimePoints);
@@ -274,6 +276,9 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
         type: 'success',
       });
 
+      // Don't show interstitial for every activity (removed)
+      // Only show ads through other methods to avoid spam
+
       // Refresh parent component's user data
       if (onPointsEarned) {
         onPointsEarned();
@@ -304,10 +309,14 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
         body: JSON.stringify({ activityId: 'spin_wheel' }),
       });
 
+      // Update local state immediately
       setLastActivity({
         ...lastActivity,
         spin_wheel: Math.floor(Date.now() / 1000),
       });
+
+      // Refresh activity status from server
+      await fetchActivityStatus();
 
       // Refresh parent component's user data
       if (onPointsEarned) {
@@ -370,6 +379,11 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
 
   return (
     <>
+      {/* Interstitial Ad */}
+      {showInterstitial && (
+        <InterstitialAd onClose={() => setShowInterstitial(false)} />
+      )}
+      
       <SpinWheelModal
         isOpen={showSpinWheel}
         onClose={() => setShowSpinWheel(false)}

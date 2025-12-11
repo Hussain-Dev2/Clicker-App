@@ -4,8 +4,8 @@
  */
 
 export const POINTS_CONFIG = {
-  CLICK_BASE_REWARD: 1,
-  AD_REWARD: 50,
+  CLICK_BASE_REWARD: 2,  // Low click reward to encourage ad watching
+  AD_REWARD: 50,         // Ads give 25x more points than clicks
   TASK_BASE_REWARD: 25,
   DAILY_BONUS_THRESHOLD: 100, // clicks needed for daily bonus
   DAILY_BONUS_MULTIPLIER: 1.5,

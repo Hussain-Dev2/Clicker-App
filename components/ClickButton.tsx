@@ -31,6 +31,7 @@ import { useState } from 'react';
 import Loader from '@/components/Loader';
 import { apiFetch } from '@/lib/client';
 import { useLanguage } from '@/contexts/LanguageContext';
+import InterstitialAd from '@/components/ads/InterstitialAd';
 
 /**
  * API response structure from /api/points/click
@@ -52,7 +53,7 @@ interface ClickResponse {
  * Component props interface
  */
 interface ClickButtonProps {
-  onSuccess: (points: number, clicks: number, milestone: boolean) => void;
+  onSuccess: (points: number, clicks: number, lifetimePoints: number, milestone: boolean) => void;
   onError: (message: string) => void;
   isAuthenticated?: boolean;
 }
@@ -99,6 +100,9 @@ export default function ClickButton({ onSuccess, onError, isAuthenticated = true
   
   // Particle burst effect
   const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number }>>([]);
+  
+  // Interstitial ad state
+  const [showInterstitial, setShowInterstitial] = useState(false);
 
   /**
    * Handle click event
@@ -169,7 +173,7 @@ export default function ClickButton({ onSuccess, onError, isAuthenticated = true
       data = await apiFetch<ClickResponse>('/points/click', { method: 'POST' });
       
       // Notify parent component of success
-      onSuccess(data.user.points, data.user.clicks, data.newAchievements.length > 0);
+      onSuccess(data.user.points, data.user.clicks, data.user.lifetimePoints, data.newAchievements.length > 0);
       
       // ===== LUCKY CLICK NOTIFICATION =====
       if (data.isLuckyClick) {
@@ -218,20 +222,31 @@ export default function ClickButton({ onSuccess, onError, isAuthenticated = true
     } finally {
       // ===== AD BREAK COOLDOWN =====
       
-      // Every 20th click triggers an ad break with longer cooldown
-      const isEvery20thClick = data && data.user.clicks % 20 === 0;
-      setIsAdBreak(isEvery20thClick);
+      // Every 50th click triggers an interstitial ad (reduced frequency)
+      const isEvery50thClick = data && data.user.clicks % 50 === 0;
+      setIsAdBreak(isEvery50thClick);
       
-      // Longer cooldown for ad breaks, minimal for regular clicks
-      const cooldown = isEvery20thClick ? 1500 : 10;
-      setTimeout(() => {
-        setLoading(false);
-        setIsAdBreak(false);
-      }, cooldown);
+      if (isEvery50thClick) {
+        // Show interstitial ad
+        setShowInterstitial(true);
+        setTimeout(() => setLoading(false), 1500);
+      } else {
+        // Minimal cooldown for regular clicks
+        setTimeout(() => setLoading(false), 10);
+      }
     }
   };
 
   return (
+    <>
+      {/* Interstitial Ad */}
+      {showInterstitial && (
+        <InterstitialAd onClose={() => {
+          setShowInterstitial(false);
+          setIsAdBreak(false);
+        }} />
+      )}
+      
     <div className="flex flex-col items-center gap-6 relative">
       {/* Combo counter */}
       {comboCount > 1 && (
@@ -399,5 +414,6 @@ export default function ClickButton({ onSuccess, onError, isAuthenticated = true
         }
       `}</style>
     </div>
+    </>
   );
 }

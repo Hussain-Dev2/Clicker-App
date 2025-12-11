@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import InterstitialAd from '@/components/ads/InterstitialAd';
 
 interface SpinWheelModalProps {
   isOpen: boolean;
@@ -11,14 +12,14 @@ interface SpinWheelModalProps {
 }
 
 const SEGMENTS = [
-  { color: '#FF6B6B', points: 50, label: '50' },
-  { color: '#4ECDC4', points: 100, label: '100' },
-  { color: '#FFE66D', points: 75, label: '75' },
-  { color: '#95E1D3', points: 150, label: '150' },
-  { color: '#F38181', points: 25, label: '25' },
-  { color: '#AA96DA', points: 200, label: '200' },
-  { color: '#FCBAD3', points: 125, label: '125' },
-  { color: '#A8E6CF', points: 175, label: '175' },
+  { color: '#FF6B6B', points: 20, label: '20' },
+  { color: '#4ECDC4', points: 30, label: '30' },
+  { color: '#FFE66D', points: 40, label: '40' },
+  { color: '#95E1D3', points: 50, label: '50' },
+  { color: '#F38181', points: 60, label: '60' },
+  { color: '#AA96DA', points: 70, label: '70' },
+  { color: '#FCBAD3', points: 80, label: '80' },
+  { color: '#A8E6CF', points: 100, label: '100' },
 ];
 
 export default function SpinWheelModal({ isOpen, onClose, onSpin, reward }: SpinWheelModalProps) {
@@ -26,6 +27,7 @@ export default function SpinWheelModal({ isOpen, onClose, onSpin, reward }: Spin
   const [rotation, setRotation] = useState(0);
   const [isSpinning, setIsSpinning] = useState(false);
   const [showReward, setShowReward] = useState(false);
+  const [showInterstitial, setShowInterstitial] = useState(false);
 
   useEffect(() => {
     if (reward !== null) {
@@ -54,6 +56,8 @@ export default function SpinWheelModal({ isOpen, onClose, onSpin, reward }: Spin
       setTimeout(() => {
         setIsSpinning(false);
         setShowReward(true);
+        // Show interstitial ad after spin
+        setShowInterstitial(true);
       }, 4000);
     } catch (error) {
       setIsSpinning(false);
@@ -72,6 +76,12 @@ export default function SpinWheelModal({ isOpen, onClose, onSpin, reward }: Spin
   if (!isOpen) return null;
 
   return (
+    <>
+      {/* Interstitial Ad */}
+      {showInterstitial && (
+        <InterstitialAd onClose={() => setShowInterstitial(false)} />
+      )}
+      
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-gradient-to-br from-white to-cyan-50 dark:from-gray-900 dark:to-cyan-950 rounded-3xl p-8 max-w-lg w-full shadow-2xl border-4 border-cyan-400 dark:border-cyan-600 relative">
         {!isSpinning && (
@@ -170,5 +180,6 @@ export default function SpinWheelModal({ isOpen, onClose, onSpin, reward }: Spin
         )}
       </div>
     </div>
+    </>
   );
 }

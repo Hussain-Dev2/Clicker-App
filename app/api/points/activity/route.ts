@@ -13,8 +13,18 @@ const ACTIVITIES = {
   share_reward: { reward: 30, cooldown: 1800 },
 };
 
-// Spin wheel possible rewards
-const SPIN_REWARDS = [50, 75, 100, 125, 150, 175, 200];
+// Spin wheel possible rewards with weighted probabilities
+// Smaller rewards have higher chances (duplicated more in array)
+const SPIN_REWARDS = [
+  20, 20, 20, 20, 20,  // 25% chance (5/20)
+  30, 30, 30, 30,      // 20% chance (4/20)
+  40, 40, 40,          // 15% chance (3/20)
+  50, 50, 50,          // 15% chance (3/20)
+  60, 60,              // 10% chance (2/20)
+  70, 70,              // 10% chance (2/20)
+  80,                  // 5% chance (1/20)
+  100                  // 5% chance (1/20)
+];
 
 function getRandomSpinReward(): number {
   return SPIN_REWARDS[Math.floor(Math.random() * SPIN_REWARDS.length)];

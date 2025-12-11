@@ -116,11 +116,12 @@ export default function Dashboard() {
    * 
    * @param points - Updated total points
    * @param clicks - Updated total clicks
+   * @param lifetimePoints - Updated lifetime points for level calculation
    * @param milestone - Whether a milestone was reached (triggers achievement)
    */
-  const handleClickSuccess = (points: number, clicks: number, milestone: boolean) => {
-    // Update user state with new values
-    setUser((prev) => prev ? { ...prev, points, clicks } : null);
+  const handleClickSuccess = (points: number, clicks: number, lifetimePoints: number, milestone: boolean) => {
+    // Update user state with new values including lifetimePoints for level progression
+    setUser((prev) => prev ? { ...prev, points, clicks, lifetimePoints } : null);
     
     // Show milestone celebration
     if (milestone) {
