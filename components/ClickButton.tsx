@@ -37,7 +37,7 @@ import InterstitialAd from '@/components/ads/InterstitialAd';
  * API response structure from /api/points/click
  */
 interface ClickResponse {
-  user: { id: string; points: number; clicks: number };
+  user: { id: string; points: number; clicks: number; lifetimePoints: number };
   clickReward: number; // Base points earned from this click
   dailyBonus: number; // Bonus points from daily multiplier
   newAchievements: Array<{ name: string; reward: number }>; // Achievements unlocked
