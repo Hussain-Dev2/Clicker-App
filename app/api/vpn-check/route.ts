@@ -12,8 +12,12 @@ export const runtime = 'edge'; // Use Edge runtime for faster response
 
 export async function GET(request: NextRequest) {
   try {
+    // Check if cache bypass is requested
+    const { searchParams } = new URL(request.url);
+    const bypassCache = searchParams.has('bypass');
+    
     // Detect VPN usage
-    const detection = await detectVPN(request);
+    const detection = await detectVPN(request, !bypassCache);
 
     // Return detection results
     return NextResponse.json({

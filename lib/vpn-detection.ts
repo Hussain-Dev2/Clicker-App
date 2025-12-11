@@ -54,11 +54,11 @@ const VPN_PROVIDERS = [
 ];
 
 /**
- * In-memory cache for VPN detection results (24 hour TTL)
+ * In-memory cache for VPN detection results (1 hour TTL)
  * In production, use Redis
  */
 const detectionCache = new Map<string, { result: VPNDetectionResult; timestamp: number }>();
-const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
 /**
  * Extract client IP from Next.js request
@@ -234,8 +234,8 @@ export async function detectVPN(
     result.riskScore += 60;
   }
   
-  // Final verdict: Consider VPN if risk score is high
-  if (result.riskScore >= 50) {
+  // Final verdict: Consider VPN if risk score is high (increased threshold to reduce false positives)
+  if (result.riskScore >= 70) {
     result.isVPN = true;
   }
   
@@ -251,7 +251,7 @@ export async function detectVPN(
  */
 export async function isVPN(request: NextRequest): Promise<boolean> {
   const result = await detectVPN(request);
-  return result.isVPN || result.isProxy || result.isTor || result.riskScore >= 50;
+  return result.isVPN || result.isProxy || result.isTor || result.riskScore >= 70;
 }
 
 /**

@@ -25,9 +25,13 @@ export default function VPNBlocker({ children }: VPNBlockerProps) {
     riskScore: number;
   } | null>(null);
 
-  const checkVPN = async () => {
+  const checkVPN = async (bypassCache = false) => {
     try {
-      const response = await fetch('/api/vpn-check');
+      // Add cache-busting parameter to force fresh check when retrying
+      const url = bypassCache ? `/api/vpn-check?bypass=${Date.now()}` : '/api/vpn-check';
+      const response = await fetch(url, {
+        cache: 'no-store', // Prevent browser caching
+      });
       const data = await response.json();
       
       setIsVPN(data.isVPN || data.isProxy || data.isDatacenter);
@@ -153,7 +157,7 @@ export default function VPNBlocker({ children }: VPNBlockerProps) {
 
           {/* Retry Button */}
           <button
-            onClick={checkVPN}
+            onClick={() => checkVPN(true)}
             className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-lg"
           >
             {isArabic ? '🔄 إعادة المحاولة الآن' : '🔄 Retry Now'}
