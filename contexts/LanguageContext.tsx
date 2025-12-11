@@ -7,6 +7,7 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: typeof translations.en;
+  isArabic: boolean;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -46,7 +47,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t: translations[language] }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t: translations[language], isArabic: language === 'ar' }}>
       {children}
     </LanguageContext.Provider>
   );
@@ -59,7 +60,8 @@ export function useLanguage() {
     return {
       language: 'en' as Language,
       setLanguage: () => {},
-      t: translations.en
+      t: translations.en,
+      isArabic: false
     };
   }
   return context;

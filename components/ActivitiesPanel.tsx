@@ -144,35 +144,38 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
   // Calculate user's level
   const level = calculateLevel(lifetimePoints);
 
+  // Function to fetch activity status from API
+  const fetchActivityStatus = async () => {
+    if (!isAuthenticated) return;
+    
+    try {
+      const response = await apiFetch<{ 
+        activityStatus: Record<string, { canComplete: boolean; remainingSeconds: number }> 
+      }>('/points/activity-status');
+      
+      // Convert to timestamp format
+      const now = Math.floor(Date.now() / 1000);
+      const timestamps: ActivityTimestamp = {};
+      
+      for (const [activityId, status] of Object.entries(response.activityStatus)) {
+        if (!status.canComplete) {
+          // Calculate when it was last completed
+          const activity = ACTIVITIES.find(a => a.id === activityId);
+          if (activity) {
+            timestamps[activityId] = now - (activity.cooldown - status.remainingSeconds);
+          }
+        }
+      }
+      
+      setLastActivity(timestamps);
+    } catch (error) {
+      console.error('Failed to fetch activity status:', error);
+    }
+  };
+
   // Fetch activity status from server (only if authenticated)
   useEffect(() => {
     if (!isAuthenticated) return;
-
-    const fetchActivityStatus = async () => {
-      try {
-        const response = await apiFetch<{ 
-          activityStatus: Record<string, { canComplete: boolean; remainingSeconds: number }> 
-        }>('/points/activity-status');
-        
-        // Convert to timestamp format
-        const now = Math.floor(Date.now() / 1000);
-        const timestamps: ActivityTimestamp = {};
-        
-        for (const [activityId, status] of Object.entries(response.activityStatus)) {
-          if (!status.canComplete) {
-            // Calculate when it was last completed
-            const activity = ACTIVITIES.find(a => a.id === activityId);
-            if (activity) {
-              timestamps[activityId] = now - (activity.cooldown - status.remainingSeconds);
-            }
-          }
-        }
-        
-        setLastActivity(timestamps);
-      } catch (error) {
-        console.error('Failed to fetch activity status:', error);
-      }
-    };
 
     fetchActivityStatus();
     

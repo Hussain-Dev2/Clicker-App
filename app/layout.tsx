@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Header from '@/components/Header';
+import VPNBlocker from '@/components/VPNBlocker';
 import { Providers } from './providers';
 import './globals.css';
 import { Analytics } from "@vercel/analytics/next"
@@ -67,39 +68,41 @@ export default function RootLayout({
       </head>
       <body className="bg-gradient-to-br from-cyan-50 via-orange-50 to-cyan-100 dark:from-gray-900 dark:via-cyan-900 dark:to-orange-950 text-gray-900 dark:text-gray-50 transition-all duration-500 ease-in-out">
         <Providers>
-          <Header />
-          {children}
-          
-          {/* Footer with important links for AdSense compliance */}
-          <footer className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700 mt-12">
-            <div className="max-w-6xl mx-auto px-4 py-8">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-left">
-                <div>
-                  <h3 className="font-bold text-lg mb-3 text-cyan-600 dark:text-cyan-400">RECKON</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Transform your engagement into rewards
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg mb-3 text-gray-900 dark:text-white">Quick Links</h3>
-                  <ul className="space-y-2 text-sm">
-                    <li><a href="/about" className="text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400">About Us</a></li>
-                    <li><a href="/contact" className="text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400">Contact</a></li>
-                    <li><a href="/privacy" className="text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400">Privacy Policy</a></li>
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg mb-3 text-gray-900 dark:text-white">Legal</h3>
-                  <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                    <li>© {new Date().getFullYear()} RECKON</li>
-                    <li>All rights reserved</li>
-                  </ul>
+          <VPNBlocker>
+            <Header />
+            {children}
+            
+            {/* Footer with important links for AdSense compliance */}
+            <footer className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700 mt-12">
+              <div className="max-w-6xl mx-auto px-4 py-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-left">
+                  <div>
+                    <h3 className="font-bold text-lg mb-3 text-cyan-600 dark:text-cyan-400">RECKON</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Transform your engagement into rewards
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg mb-3 text-gray-900 dark:text-white">Quick Links</h3>
+                    <ul className="space-y-2 text-sm">
+                      <li><a href="/about" className="text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400">About Us</a></li>
+                      <li><a href="/contact" className="text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400">Contact</a></li>
+                      <li><a href="/privacy" className="text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400">Privacy Policy</a></li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg mb-3 text-gray-900 dark:text-white">Legal</h3>
+                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                      <li>© {new Date().getFullYear()} RECKON</li>
+                      <li>All rights reserved</li>
+                    </ul>
+                  </div>
                 </div>
               </div>
-            </div>
-          </footer>
-          
-          <Analytics />
+            </footer>
+            
+            <Analytics />
+          </VPNBlocker>
         </Providers>
       </body>
     </html>
