@@ -244,7 +244,48 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
     if (activity.id === 'watch_ad') {
       if (isAdmin) {
         // Admins get instant reward without watching ad
-        await completeActivity('watch_ad');
+        setLoading(activity.id);
+        try {
+          const response = await apiFetch<{ 
+            success: boolean; 
+            reward: number; 
+            user: { points: number };
+            error?: string;
+          }>('/points/activity', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ activityId: 'watch_ad' }),
+          });
+
+          if (response.error) {
+            throw new Error(response.error);
+          }
+
+          setLastActivity({
+            ...lastActivity,
+            watch_ad: Math.floor(Date.now() / 1000),
+          });
+
+          setMessage({
+            text: `+${response.reward} points! ${activity.icon} (Admin)`,
+            type: 'success',
+          });
+
+          if (onPointsEarned) {
+            onPointsEarned();
+          }
+
+          setTimeout(() => setMessage({ text: '', type: 'success' }), 2000);
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Activity failed';
+          setMessage({
+            text: errorMessage,
+            type: 'error',
+          });
+          setTimeout(() => setMessage({ text: '', type: 'error' }), 3000);
+        } finally {
+          setLoading(null);
+        }
       } else {
         setShowAdsterraRewarded(true);
       }
