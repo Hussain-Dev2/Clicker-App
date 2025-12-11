@@ -12,6 +12,8 @@ import { useEffect, useRef } from 'react';
 // Global flag to prevent duplicate script loading
 let scriptLoaded = false;
 
+const ADSTERRA_SOCIAL_BAR_KEY = process.env.NEXT_PUBLIC_ADSTERRA_SOCIAL_BAR_KEY || 'c4060cbdd4dfbfe5344b0066a43948ca';
+
 export default function AdsterraSocialBar() {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -21,7 +23,7 @@ export default function AdsterraSocialBar() {
 
     // Check if script already exists
     const existingScript = document.querySelector(
-      'script[src*="c4060cbdd4dfbfe5344b0066a43948ca"]'
+      `script[src*="${ADSTERRA_SOCIAL_BAR_KEY}"]`
     );
     
     if (existingScript) {
@@ -33,7 +35,7 @@ export default function AdsterraSocialBar() {
     const script = document.createElement('script');
     script.type = 'text/javascript';
     script.async = true;
-    script.src = 'https://pl28232294.effectivegatecpm.com/c4/06/0c/c4060cbdd4dfbfe5344b0066a43948ca.js';
+    script.src = `https://pl28232294.effectivegatecpm.com/${ADSTERRA_SOCIAL_BAR_KEY.replace(/(.{2})(?=.)/g, '$1/')}.js`;
 
     script.onerror = () => {
       console.warn('Adsterra Social Bar ad failed to load');

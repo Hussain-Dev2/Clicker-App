@@ -12,6 +12,8 @@ import { useEffect } from 'react';
 // Global flag to prevent duplicate script loading
 let scriptLoaded = false;
 
+const ADSTERRA_NATIVE_BAR_KEY = process.env.NEXT_PUBLIC_ADSTERRA_NATIVE_BAR_KEY || '233a167aa950834c2307f2f53e2c8726';
+
 export default function AdsterraNativeBar() {
   useEffect(() => {
     // Only run on client side and load script once globally
@@ -19,7 +21,7 @@ export default function AdsterraNativeBar() {
 
     // Check if script already exists in the document
     const existingScript = document.querySelector(
-      'script[src*="233a167aa950834c2307f2f53e2c8726"]'
+      `script[src*="${ADSTERRA_NATIVE_BAR_KEY}"]`
     );
     
     if (existingScript) {
@@ -31,7 +33,7 @@ export default function AdsterraNativeBar() {
     const script = document.createElement('script');
     script.async = true;
     script.setAttribute('data-cfasync', 'false');
-    script.src = 'https://pl28232367.effectivegatecpm.com/233a167aa950834c2307f2f53e2c8726/invoke.js';
+    script.src = `https://pl28232367.effectivegatecpm.com/${ADSTERRA_NATIVE_BAR_KEY}/invoke.js`;
     
     script.onerror = () => {
       console.warn('Adsterra Native Bar ad failed to load');
@@ -48,7 +50,7 @@ export default function AdsterraNativeBar() {
   return (
     <div className="w-full flex justify-center items-center py-4">
       <div 
-        id="container-233a167aa950834c2307f2f53e2c8726"
+        id={`container-${ADSTERRA_NATIVE_BAR_KEY}`}
         className="w-full min-h-[90px] flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg"
       >
         {/* Fallback content while ad loads */}

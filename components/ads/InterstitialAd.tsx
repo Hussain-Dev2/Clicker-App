@@ -11,6 +11,8 @@ interface InterstitialAdProps {
   onClose?: () => void;
 }
 
+const ADSTERRA_INTERSTITIAL_KEY = process.env.NEXT_PUBLIC_ADSTERRA_INTERSTITIAL_KEY || '28139013';
+
 export default function InterstitialAd({ onClose }: InterstitialAdProps) {
   const hasLoaded = useRef(false);
 
@@ -18,12 +20,12 @@ export default function InterstitialAd({ onClose }: InterstitialAdProps) {
     if (hasLoaded.current) return;
     hasLoaded.current = true;
 
-    // Adsterra Popunder/Interstitial Ad - ID: 28139013
+    // Adsterra Popunder/Interstitial Ad
     const script = document.createElement('script');
     script.type = 'text/javascript';
     script.innerHTML = `
       atOptions = {
-        'key' : '28139013',
+        'key' : '${ADSTERRA_INTERSTITIAL_KEY}',
         'format' : 'iframe',
         'height' : 600,
         'width' : 160,
@@ -34,7 +36,7 @@ export default function InterstitialAd({ onClose }: InterstitialAdProps) {
 
     const invokeScript = document.createElement('script');
     invokeScript.type = 'text/javascript';
-    invokeScript.src = '//www.topcreativeformat.com/28139013/invoke.js';
+    invokeScript.src = `//www.topcreativeformat.com/${ADSTERRA_INTERSTITIAL_KEY}/invoke.js`;
     document.body.appendChild(invokeScript);
 
     // Auto close after 5 seconds
