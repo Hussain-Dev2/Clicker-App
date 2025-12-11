@@ -28,6 +28,10 @@ export const authOptions: NextAuthOptions = {
 
           // If user was just created by adapter, initialize their fields
           if (existingUser && existingUser.points === 0 && !existingUser.lastActivityAt) {
+            // Store user ID in token/session for referral processing
+            (user as any).isNewUser = true;
+            (user as any).userId = existingUser.id;
+            
             await prisma.user.update({
               where: { email: user.email },
               data: {

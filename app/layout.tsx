@@ -5,8 +5,20 @@ import './globals.css';
 import { Analytics } from "@vercel/analytics/next"
 
 export const metadata: Metadata = {
-  title: 'ClickVault - Earn Rewards',
-  description: 'Transform your clicks into rewards with our modern earning platform',
+  title: 'RECKON - Earn Rewards',
+  description: 'Transform your clicks into rewards with RECKON earning platform',
+  icons: {
+    icon: [
+      { url: '/RECKON.jpg', sizes: 'any' },
+      { url: '/RECKON.jpg', sizes: '16x16', type: 'image/jpeg' },
+      { url: '/RECKON.jpg', sizes: '32x32', type: 'image/jpeg' },
+      { url: '/RECKON.jpg', sizes: '192x192', type: 'image/jpeg' },
+      { url: '/RECKON.jpg', sizes: '512x512', type: 'image/jpeg' },
+    ],
+    apple: [
+      { url: '/RECKON.jpg', sizes: '180x180', type: 'image/jpeg' },
+    ],
+  },
 };
 
 export default function RootLayout({

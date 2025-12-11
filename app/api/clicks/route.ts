@@ -21,12 +21,27 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-config';
 import { prisma } from '@/lib/prisma';
+import { detectVPN, getRiskLevel } from '@/lib/vpn-detection';
 
 /**
  * Game balance constants
  */
 const POINTS_PER_CLICK = 10; // Base points awarded per click
 const MILESTONE_INTERVAL = 100; // Milestone notification every N clicks
+
+/**
+ * Anti-cheat constants
+ */
+const MIN_CLICK_INTERVAL_MS = 50; // Minimum 50ms between clicks (humanly impossible to click faster)
+const MAX_CLICKS_PER_MINUTE = 600; // Maximum 600 clicks per minute (10 per second)
+const SUSPICIOUS_THRESHOLD = 15; // Flag as suspicious after 15 ultra-fast clicks
+const BLOCK_VPN = false; // Set to true to block VPN users (warning mode by default)
+
+/**
+ * Rate limiting storage (in-memory)
+ * In production, use Redis or similar
+ */
+const clickTracking = new Map<string, { lastClick: number; recentClicks: number[]; suspiciousCount: number }>();
 
 /**
  * Force dynamic rendering to ensure fresh data on each request
@@ -79,6 +94,80 @@ export async function POST(request: NextRequest) {
         { message: 'User not found in database' },
         { status: 404 }
       );
+    }
+
+    // Step 2.5: ANTI-CHEAT - VPN Detection
+    const vpnResult = await detectVPN(request);
+    
+    if (vpnResult.riskScore >= 50) {
+      console.warn(`🚨 VPN/Proxy detected for user ${user.id}:`, {
+        ip: vpnResult.ipAddress,
+        isVPN: vpnResult.isVPN,
+        isProxy: vpnResult.isProxy,
+        isTor: vpnResult.isTor,
+        isDatacenter: vpnResult.isDatacenter,
+        provider: vpnResult.provider,
+        riskScore: vpnResult.riskScore,
+        riskLevel: getRiskLevel(vpnResult.riskScore)
+      });
+      
+      // Block VPN if enabled
+      if (BLOCK_VPN) {
+        return NextResponse.json(
+          { message: '🚫 VPN/Proxy detected. Please disable your VPN to continue.' },
+          { status: 403 }
+        );
+      }
+      
+      // Warning mode: Log but allow (can be used for analytics)
+      // In production, you might want to reduce rewards or flag the account
+    }
+    
+    // Step 2.6: ANTI-CHEAT - Rate limiting & bot detection
+    const now = Date.now();
+    const userId = user.id;
+    
+    // Get or create user tracking data
+    const tracking = clickTracking.get(userId) || { 
+      lastClick: 0, 
+      recentClicks: [], 
+      suspiciousCount: 0 
+    };
+    
+    // Check minimum interval between clicks (prevent auto-clickers)
+    const timeSinceLastClick = now - tracking.lastClick;
+    if (timeSinceLastClick < MIN_CLICK_INTERVAL_MS) {
+      tracking.suspiciousCount++;
+      clickTracking.set(userId, tracking);
+      
+      // Block if too many suspicious clicks
+      if (tracking.suspiciousCount > SUSPICIOUS_THRESHOLD) {
+        return NextResponse.json(
+          { message: '⚠️ Suspicious activity detected. Please click normally.' },
+          { status: 429 }
+        );
+      }
+    }
+    
+    // Track recent clicks for rate limiting
+    tracking.recentClicks.push(now);
+    tracking.recentClicks = tracking.recentClicks.filter(t => now - t < 60000); // Keep last minute
+    
+    // Check rate limit (max clicks per minute)
+    if (tracking.recentClicks.length > MAX_CLICKS_PER_MINUTE) {
+      return NextResponse.json(
+        { message: '⏱️ Slow down! You\'re clicking too fast.' },
+        { status: 429 }
+      );
+    }
+    
+    // Update tracking
+    tracking.lastClick = now;
+    clickTracking.set(userId, tracking);
+    
+    // Reset suspicious count if clicking normally
+    if (timeSinceLastClick > 200) {
+      tracking.suspiciousCount = Math.max(0, tracking.suspiciousCount - 1);
     }
 
     // Step 3: Update user stats atomically

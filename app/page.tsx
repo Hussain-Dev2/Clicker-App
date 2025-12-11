@@ -213,48 +213,20 @@ export default function Dashboard() {
           <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-aurora rounded-full mix-blend-normal filter blur-3xl opacity-20 dark:opacity-10 animate-blob"></div>
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 relative z-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 relative z-10">
           {/* Header */}
-          <div className="mb-8 sm:mb-10 lg:mb-12 animate-fade-in">
-            <div className="flex items-center gap-2 sm:gap-3 mb-2">
-              <span className="text-3xl sm:text-4xl lg:text-5xl animate-float">💸</span>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-aurora bg-clip-text text-transparent animate-gradient">
+          <div className="mb-4 sm:mb-6 lg:mb-8 animate-fade-in">
+            <div className="flex items-center gap-2 sm:gap-3 mb-1">
+              <span className="text-2xl sm:text-3xl lg:text-4xl animate-float">💸</span>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-aurora bg-clip-text text-transparent animate-gradient">
                 {t.dashboard}
               </h1>
             </div>
-            <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base lg:text-lg">{t.dashboardSubtitle}</p>
+            <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm lg:text-base">{t.dashboardSubtitle}</p>
           </div>
 
-          {/* Google AdSense - Top Banner */}
-          <div className="mb-6 sm:mb-8 lg:mb-10 animate-fade-in" style={{ animationDelay: '100ms' }}>
-            <GoogleAdsense 
-              adSlot="1234567890" 
-              adFormat="horizontal"
-              style={{ minHeight: '90px' }}
-            />
-          </div>
-
-          {/* Adsterra Social Bar */}
-          <div className="mb-6 sm:mb-8 lg:mb-10 animate-fade-in" style={{ animationDelay: '110ms' }}>
-            <AdsterraSocialBar />
-          </div>
-
-          {/* Google AdSense - Dual Display Ads */}
-          <div className="grid sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8 lg:mb-10 animate-fade-in" style={{ animationDelay: '120ms' }}>
-            <GoogleAdsense 
-              adSlot="1234567891" 
-              adFormat="rectangle"
-              style={{ minHeight: '250px' }}
-            />
-            <GoogleAdsense 
-              adSlot="1234567892" 
-              adFormat="rectangle"
-              style={{ minHeight: '250px' }}
-            />
-          </div>
-
-          {/* Main Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 items-center mb-8 sm:mb-10 lg:mb-12">
+          {/* Main Grid - Stats & Click Button First */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 items-center mb-4 sm:mb-5 lg:mb-6">
             {/* Left: Level Card */}
             <div className="animate-fade-in" style={{ animationDelay: '100ms' }}>
               <LevelCard lifetimePoints={displayUser.lifetimePoints || 0} />
@@ -275,9 +247,18 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* Activities Panel - Second Priority */}
+          <div className="mb-4 sm:mb-5 lg:mb-6 animate-fade-in" style={{ animationDelay: '250ms' }}>
+            <ActivitiesPanel 
+              onPointsEarned={fetchUser} 
+              lifetimePoints={displayUser.lifetimePoints || 0}
+              isAuthenticated={isAuthenticated}
+            />
+          </div>
+
           {/* Info Section */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 animate-fade-in" style={{ animationDelay: '300ms' }}>
-            <div className="group glass backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 border-2 border-cyan-200/50 dark:border-cyan-700/50 rounded-2xl sm:rounded-3xl p-5 sm:p-6 lg:p-8 card-lift hover:border-cyan-400 dark:hover:border-cyan-500 transition-all duration-500 hover:shadow-glow">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-5 mb-4 sm:mb-5 lg:mb-6 animate-fade-in" style={{ animationDelay: '300ms' }}>
+            <div className="group glass backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 border-2 border-cyan-200/50 dark:border-cyan-700/50 rounded-2xl p-4 sm:p-5 lg:p-6 card-lift hover:border-cyan-400 dark:hover:border-cyan-500 transition-all duration-500 hover:shadow-glow">
               <h3 className="font-bold text-lg sm:text-xl flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                 <span className="text-2xl sm:text-3xl animate-pulse-soft">🚀</span>
                 <span className="bg-gradient-ocean bg-clip-text text-transparent">Quick Start</span>
@@ -287,7 +268,7 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <div className="group glass backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 border-2 border-emerald-200/50 dark:border-emerald-700/50 rounded-2xl sm:rounded-3xl p-5 sm:p-6 lg:p-8 card-lift hover:border-emerald-400 dark:hover:border-emerald-500 transition-all duration-500 hover:shadow-glow-mint">
+            <div className="group glass backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 border-2 border-emerald-200/50 dark:border-emerald-700/50 rounded-2xl p-4 sm:p-5 lg:p-6 card-lift hover:border-emerald-400 dark:hover:border-emerald-500 transition-all duration-500 hover:shadow-glow-mint">
               <h3 className="font-bold text-lg sm:text-xl flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                 <span className="text-2xl sm:text-3xl animate-pulse-soft">🎯</span>
                 <span className="bg-gradient-tropical bg-clip-text text-transparent">Level Up</span>
@@ -297,7 +278,7 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <div className="group glass backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 border-2 border-orange-200/50 dark:border-orange-700/50 rounded-2xl sm:rounded-3xl p-5 sm:p-6 lg:p-8 card-lift hover:border-orange-400 dark:hover:border-orange-500 transition-all duration-500 hover:shadow-glow-coral sm:col-span-2 lg:col-span-1">
+            <div className="group glass backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 border-2 border-orange-200/50 dark:border-orange-700/50 rounded-2xl p-4 sm:p-5 lg:p-6 card-lift hover:border-orange-400 dark:hover:border-orange-500 transition-all duration-500 hover:shadow-glow-coral sm:col-span-2 lg:col-span-1">
               <h3 className="font-bold text-lg sm:text-xl flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                 <span className="text-2xl sm:text-3xl animate-pulse-soft">🎉</span>
                 <span className="bg-gradient-sunset bg-clip-text text-transparent">Rewards</span>
@@ -308,8 +289,36 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* Google AdSense - Top Banner */}
+          <div className="mb-3 sm:mb-4 lg:mb-5 animate-fade-in" style={{ animationDelay: '350ms' }}>
+            <GoogleAdsense 
+              adSlot="1234567890" 
+              adFormat="horizontal"
+              style={{ minHeight: '90px' }}
+            />
+          </div>
+
+          {/* Adsterra Social Bar */}
+          <div className="mb-3 sm:mb-4 lg:mb-5 animate-fade-in" style={{ animationDelay: '380ms' }}>
+            <AdsterraSocialBar />
+          </div>
+
+          {/* Google AdSense - Dual Display Ads */}
+          <div className="grid sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4 lg:mb-5 animate-fade-in" style={{ animationDelay: '400ms' }}>
+            <GoogleAdsense 
+              adSlot="1234567891" 
+              adFormat="rectangle"
+              style={{ minHeight: '250px' }}
+            />
+            <GoogleAdsense 
+              adSlot="1234567892" 
+              adFormat="rectangle"
+              style={{ minHeight: '250px' }}
+            />
+          </div>
+
           {/* Google AdSense - In-Article Ad */}
-          <div className="my-6 sm:my-8 animate-fade-in" style={{ animationDelay: '350ms' }}>
+          <div className="mb-3 sm:mb-4 lg:mb-5 animate-fade-in" style={{ animationDelay: '430ms' }}>
             <GoogleAdsense 
               adSlot="1234567893" 
               adFormat="fluid"
@@ -317,18 +326,8 @@ export default function Dashboard() {
             />
           </div>
 
-            {/* Rewarded ad + inline sponsored */}
-          {/* Activities Panel */}
-          <div className="my-8 sm:my-10 lg:my-12 animate-fade-in" style={{ animationDelay: '400ms' }}>
-            <ActivitiesPanel 
-              onPointsEarned={fetchUser} 
-              lifetimePoints={displayUser.lifetimePoints || 0}
-              isAuthenticated={isAuthenticated}
-            />
-          </div>
-
           {/* Google AdSense - Display Ad */}
-          <div className="animate-fade-in" style={{ animationDelay: '450ms' }}>
+          <div className="mb-3 sm:mb-4 lg:mb-5 animate-fade-in" style={{ animationDelay: '460ms' }}>
             <GoogleAdsense 
               adSlot="1234567894" 
               adFormat="auto"
@@ -337,12 +336,12 @@ export default function Dashboard() {
           </div>
 
           {/* Adsterra Native Bar */}
-          <div className="my-6 sm:my-8 animate-fade-in" style={{ animationDelay: '480ms' }}>
+          <div className="mb-3 sm:mb-4 lg:mb-5 animate-fade-in" style={{ animationDelay: '490ms' }}>
             <AdsterraNativeBar />
           </div>
 
           {/* Google AdSense - Footer Banner */}
-          <div className="animate-fade-in" style={{ animationDelay: '500ms' }}>
+          <div className="animate-fade-in" style={{ animationDelay: '520ms' }}>
             <GoogleAdsense 
               adSlot="1234567895" 
               adFormat="horizontal"

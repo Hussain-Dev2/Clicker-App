@@ -175,12 +175,13 @@ export default function AdminProductManager() {
                 <input
                   type="number"
                   value={formData.costPoints}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
                     setFormData({
                       ...formData,
-                      costPoints: Math.max(1, parseInt(e.target.value)),
-                    })
-                  }
+                      costPoints: isNaN(value) ? 1 : Math.max(1, value),
+                    });
+                  }}
                   min="1"
                   required
                   className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"

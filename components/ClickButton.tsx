@@ -42,6 +42,10 @@ interface ClickResponse {
   newAchievements: Array<{ name: string; reward: number }>; // Achievements unlocked
   streakDays: number; // Current daily login streak
   message?: string; // Optional status message
+  comboCount?: number; // Server-side combo count
+  comboBonus?: number; // Combo bonus percentage
+  isLuckyClick?: boolean; // Was this a lucky click?
+  luckyMultiplier?: number; // Lucky click multiplier (10x)
 }
 
 /**
@@ -167,13 +171,25 @@ export default function ClickButton({ onSuccess, onError, isAuthenticated = true
       // Notify parent component of success
       onSuccess(data.user.points, data.user.clicks, data.newAchievements.length > 0);
       
+      // ===== LUCKY CLICK NOTIFICATION =====
+      if (data.isLuckyClick) {
+        // Show special lucky click notification
+        setAchievement({ 
+          name: '🍀 LUCKY CLICK!', 
+          reward: Math.floor(data.clickReward * 0.9) // Show bonus gained
+        });
+        setTimeout(() => setAchievement(null), 2000);
+      }
+      
       // ===== FLOATING POINTS ANIMATION =====
       
       const newId = nextFloatingId;
       setNextFloatingId(newId + 1);
       
       // Determine point type for styling
-      const pointType = newCombo % 10 === 0 
+      const pointType = data.isLuckyClick
+        ? 'combo' // Lucky clicks get special styling
+        : newCombo % 10 === 0 
         ? 'combo' // Every 10th combo gets special styling
         : data.dailyBonus > 0 
         ? 'bonus' // Daily bonus active
@@ -192,7 +208,7 @@ export default function ClickButton({ onSuccess, onError, isAuthenticated = true
       
       // ===== ACHIEVEMENT NOTIFICATION =====
       
-      if (data.newAchievements.length > 0) {
+      if (data.newAchievements.length > 0 && !data.isLuckyClick) {
         setAchievement(data.newAchievements[0]); // Show first achievement
         setTimeout(() => setAchievement(null), 3000); // Hide after 3 seconds
       }

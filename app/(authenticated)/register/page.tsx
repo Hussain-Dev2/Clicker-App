@@ -27,14 +27,52 @@ function RegisterContent() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: 'error' } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
   const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [referralApplied, setReferralApplied] = useState(false);
 
   useEffect(() => {
-    if (status === 'authenticated') {
-      router.push('/');
+    if (status === 'authenticated' && !referralApplied) {
+      // Check if there's a referral code to apply
+      const storedRef = sessionStorage.getItem('referralCode');
+      if (storedRef) {
+        applyReferralCode(storedRef);
+      } else {
+        router.push('/');
+      }
     }
-  }, [status, router]);
+  }, [status, router, referralApplied]);
+
+  const applyReferralCode = async (code: string) => {
+    try {
+      const response = await fetch('/api/referral/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ referralCode: code }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setToast({
+          message: `🎉 Welcome! You received ${data.bonusAwarded} bonus points!`,
+          type: 'success',
+        });
+        sessionStorage.removeItem('referralCode');
+        setTimeout(() => router.push('/'), 2000);
+      } else {
+        // Even if referral fails, still redirect (user already registered)
+        sessionStorage.removeItem('referralCode');
+        router.push('/');
+      }
+    } catch (error) {
+      console.error('Failed to apply referral:', error);
+      sessionStorage.removeItem('referralCode');
+      router.push('/');
+    } finally {
+      setReferralApplied(true);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,7 +144,13 @@ function RegisterContent() {
           {/* Google Sign Up */}
           <button
             type="button"
-            onClick={() => signIn('google', { redirect: true, callbackUrl: '/' })}
+            onClick={() => {
+              // Ensure referral code is in sessionStorage before OAuth
+              if (referralCode) {
+                sessionStorage.setItem('referralCode', referralCode);
+              }
+              signIn('google', { redirect: true, callbackUrl: '/register' });
+            }}
             className="w-full py-4 px-6 bg-gradient-smooth-4 hover:shadow-glow-coral rounded-2xl font-bold text-base text-white shadow-lg transition-all duration-300 flex items-center justify-center gap-3 group hover-scale active:scale-95"
           >
             <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
