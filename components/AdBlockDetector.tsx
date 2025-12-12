@@ -9,6 +9,16 @@
 
 import { useEffect, useState } from 'react';
 
+// Extend Window interface to include adsbygoogle
+declare global {
+  interface Window {
+    adsbygoogle?: Record<string, unknown>[] & {
+      push: (params: Record<string, unknown>) => void;
+      loaded?: boolean;
+    };
+  }
+}
+
 export default function AdBlockDetector() {
   const [adBlockDetected, setAdBlockDetected] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
@@ -33,7 +43,7 @@ export default function AdBlockDetector() {
 
         // Method 2: Check if AdSense script loaded
         const adSenseBlocked = typeof window.adsbygoogle === 'undefined' || 
-                               !(window.adsbygoogle as any)?.loaded;
+                               !window.adsbygoogle?.loaded;
 
         setAdBlockDetected(isBlocked || adSenseBlocked);
       } catch (error) {
