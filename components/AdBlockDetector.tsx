@@ -9,16 +9,6 @@
 
 import { useEffect, useState } from 'react';
 
-// Extend Window interface to include adsbygoogle
-declare global {
-  interface Window {
-    adsbygoogle?: Record<string, unknown>[] & {
-      push: (params: Record<string, unknown>) => void;
-      loaded?: boolean;
-    };
-  }
-}
-
 export default function AdBlockDetector() {
   const [adBlockDetected, setAdBlockDetected] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
