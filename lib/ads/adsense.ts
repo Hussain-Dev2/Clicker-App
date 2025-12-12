@@ -3,12 +3,6 @@
  * Handles loading and managing AdSense scripts
  */
 
-declare global {
-  interface Window {
-    adsbygoogle?: Array<Record<string, unknown>> & { push: (params: Record<string, unknown>) => void };
-  }
-}
-
 let adSenseLoader: Promise<void> | null = null;
 const loadedScripts = new Set<string>();
 

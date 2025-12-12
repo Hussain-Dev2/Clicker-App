@@ -22,12 +22,6 @@ interface GoogleAdsenseProps {
   className?: string;
 }
 
-declare global {
-  interface Window {
-    adsbygoogle?: Array<Record<string, unknown>> & { push: (params: Record<string, unknown>) => void };
-  }
-}
-
 export default function GoogleAdsense({ 
   adSlot, 
   adFormat = 'auto',
