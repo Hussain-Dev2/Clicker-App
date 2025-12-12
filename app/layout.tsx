@@ -32,6 +32,7 @@ export default function RootLayout({
       <head>
         {/* Theme Script - Runs before page renders to prevent flash */}
         <script
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
@@ -52,9 +53,11 @@ export default function RootLayout({
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4681103183883079"
           crossOrigin="anonymous"
+          suppressHydrationWarning
         />
         {/* Google AdSense Auto Ads - Automatically places ads throughout the site */}
         <script
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `
               (function() {

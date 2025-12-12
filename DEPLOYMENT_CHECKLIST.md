@@ -52,7 +52,6 @@ NEXT_PUBLIC_APP_URL=https://your-domain.com
 DATABASE_URL=your-database-url
 DIRECT_URL=your-direct-database-url
 NEXTAUTH_SECRET=your-nextauth-secret
-JWT_SECRET=your-jwt-secret
 ADMIN_SECRET_KEY=your-admin-secret
 SUPABASE_SERVICE_ROLE_KEY=your-supabase-key
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
